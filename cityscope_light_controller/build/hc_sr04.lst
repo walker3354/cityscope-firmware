@@ -1,0 +1,369 @@
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"hc_sr04.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.HCSR04_Read,"ax",%progbits
+  20              		.align	1
+  21              		.global	HCSR04_Read
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	HCSR04_Read:
+  27              	.LFB123:
+  28              		.file 1 "Core/Src/hc_sr04.c"
+   1:Core/Src/hc_sr04.c **** #include "tim.h"
+   2:Core/Src/hc_sr04.c **** #include "hc_sr04.h"
+   3:Core/Src/hc_sr04.c **** 
+   4:Core/Src/hc_sr04.c **** uint32_t IC_Val1 = 0;
+   5:Core/Src/hc_sr04.c **** uint32_t IC_Val2 = 0;
+   6:Core/Src/hc_sr04.c **** uint32_t Difference = 0;
+   7:Core/Src/hc_sr04.c **** uint8_t Echo_Raised = 0;
+   8:Core/Src/hc_sr04.c **** uint32_t Distance = 0;
+   9:Core/Src/hc_sr04.c **** 
+  10:Core/Src/hc_sr04.c **** void HCSR04_Read(void)
+  11:Core/Src/hc_sr04.c **** {
+  29              		.loc 1 11 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 08B5     		push	{r3, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 3, -8
+  37              		.cfi_offset 14, -4
+  12:Core/Src/hc_sr04.c ****     HAL_GPIO_WritePin(HC_TRIG_GPIO_Port, HC_TRIG_Pin, GPIO_PIN_SET); // pull the TRIG pin HIGH
+  38              		.loc 1 12 5 view .LVU1
+  39 0002 0122     		movs	r2, #1
+  40 0004 0221     		movs	r1, #2
+  41 0006 4FF09040 		mov	r0, #1207959552
+  42 000a FFF7FEFF 		bl	HAL_GPIO_WritePin
+  43              	.LVL0:
+  13:Core/Src/hc_sr04.c ****     delay_us(10);                                                    // wait for 10 us
+  44              		.loc 1 13 5 view .LVU2
+  45 000e 0A20     		movs	r0, #10
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 2
+
+
+  46 0010 FFF7FEFF 		bl	delay_us
+  47              	.LVL1:
+  14:Core/Src/hc_sr04.c ****     // osDelay(1);
+  15:Core/Src/hc_sr04.c ****     HAL_GPIO_WritePin(HC_TRIG_GPIO_Port, HC_TRIG_Pin, GPIO_PIN_RESET); // pull the TRIG pin low
+  48              		.loc 1 15 5 view .LVU3
+  49 0014 0022     		movs	r2, #0
+  50 0016 0221     		movs	r1, #2
+  51 0018 4FF09040 		mov	r0, #1207959552
+  52 001c FFF7FEFF 		bl	HAL_GPIO_WritePin
+  53              	.LVL2:
+  16:Core/Src/hc_sr04.c ****     HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
+  54              		.loc 1 16 5 view .LVU4
+  55 0020 0021     		movs	r1, #0
+  56 0022 0248     		ldr	r0, .L3
+  57 0024 FFF7FEFF 		bl	HAL_TIM_IC_Start_IT
+  58              	.LVL3:
+  17:Core/Src/hc_sr04.c **** }
+  59              		.loc 1 17 1 is_stmt 0 view .LVU5
+  60 0028 08BD     		pop	{r3, pc}
+  61              	.L4:
+  62 002a 00BF     		.align	2
+  63              	.L3:
+  64 002c 00000000 		.word	htim17
+  65              		.cfi_endproc
+  66              	.LFE123:
+  68              		.global	__aeabi_ui2d
+  69              		.global	__aeabi_dmul
+  70              		.global	__aeabi_d2uiz
+  71              		.section	.text.HAL_TIM_IC_CaptureCallback,"ax",%progbits
+  72              		.align	1
+  73              		.global	HAL_TIM_IC_CaptureCallback
+  74              		.syntax unified
+  75              		.thumb
+  76              		.thumb_func
+  78              	HAL_TIM_IC_CaptureCallback:
+  79              	.LVL4:
+  80              	.LFB124:
+  18:Core/Src/hc_sr04.c **** 
+  19:Core/Src/hc_sr04.c **** 
+  20:Core/Src/hc_sr04.c **** void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+  21:Core/Src/hc_sr04.c **** {
+  81              		.loc 1 21 1 is_stmt 1 view -0
+  82              		.cfi_startproc
+  83              		@ args = 0, pretend = 0, frame = 0
+  84              		@ frame_needed = 0, uses_anonymous_args = 0
+  22:Core/Src/hc_sr04.c ****     if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) // if the interrupt source is channel1
+  85              		.loc 1 22 5 view .LVU7
+  86              		.loc 1 22 13 is_stmt 0 view .LVU8
+  87 0000 037F     		ldrb	r3, [r0, #28]	@ zero_extendqisi2
+  88              		.loc 1 22 8 view .LVU9
+  89 0002 012B     		cmp	r3, #1
+  90 0004 00D0     		beq	.L14
+  91 0006 7047     		bx	lr
+  92              	.L14:
+  21:Core/Src/hc_sr04.c ****     if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) // if the interrupt source is channel1
+  93              		.loc 1 21 1 view .LVU10
+  94 0008 10B5     		push	{r4, lr}
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 3
+
+
+  95              	.LCFI1:
+  96              		.cfi_def_cfa_offset 8
+  97              		.cfi_offset 4, -8
+  98              		.cfi_offset 14, -4
+  99 000a 0446     		mov	r4, r0
+  23:Core/Src/hc_sr04.c ****     {
+  24:Core/Src/hc_sr04.c ****         if (!Echo_Raised) // if the first value is not captured
+ 100              		.loc 1 24 9 is_stmt 1 view .LVU11
+ 101              		.loc 1 24 13 is_stmt 0 view .LVU12
+ 102 000c 204B     		ldr	r3, .L15+8
+ 103 000e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 104              		.loc 1 24 12 view .LVU13
+ 105 0010 6BB9     		cbnz	r3, .L7
+  25:Core/Src/hc_sr04.c ****         {
+  26:Core/Src/hc_sr04.c ****             HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+ 106              		.loc 1 26 13 is_stmt 1 view .LVU14
+ 107 0012 0821     		movs	r1, #8
+ 108 0014 1F48     		ldr	r0, .L15+12
+ 109              	.LVL5:
+ 110              		.loc 1 26 13 is_stmt 0 view .LVU15
+ 111 0016 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 112              	.LVL6:
+  27:Core/Src/hc_sr04.c ****             IC_Val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read the first value
+ 113              		.loc 1 27 13 is_stmt 1 view .LVU16
+ 114              		.loc 1 27 23 is_stmt 0 view .LVU17
+ 115 001a 0021     		movs	r1, #0
+ 116 001c 2046     		mov	r0, r4
+ 117 001e FFF7FEFF 		bl	HAL_TIM_ReadCapturedValue
+ 118              	.LVL7:
+ 119              		.loc 1 27 21 view .LVU18
+ 120 0022 1D4B     		ldr	r3, .L15+16
+ 121 0024 1860     		str	r0, [r3]
+  28:Core/Src/hc_sr04.c ****             Echo_Raised = 1;                                          // set the first captured as 
+ 122              		.loc 1 28 13 is_stmt 1 view .LVU19
+ 123              		.loc 1 28 25 is_stmt 0 view .LVU20
+ 124 0026 1A4B     		ldr	r3, .L15+8
+ 125 0028 0122     		movs	r2, #1
+ 126 002a 1A70     		strb	r2, [r3]
+ 127              	.L5:
+  29:Core/Src/hc_sr04.c ****         }
+  30:Core/Src/hc_sr04.c ****         else
+  31:Core/Src/hc_sr04.c ****         {
+  32:Core/Src/hc_sr04.c ****             IC_Val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read second value
+  33:Core/Src/hc_sr04.c ****             __HAL_TIM_SET_COUNTER(htim, 0);                           // reset the counter
+  34:Core/Src/hc_sr04.c **** 
+  35:Core/Src/hc_sr04.c ****             if (IC_Val2 > IC_Val1)
+  36:Core/Src/hc_sr04.c ****             {
+  37:Core/Src/hc_sr04.c ****                 Difference = IC_Val2 - IC_Val1;
+  38:Core/Src/hc_sr04.c ****             }
+  39:Core/Src/hc_sr04.c **** 
+  40:Core/Src/hc_sr04.c ****             else if (IC_Val1 > IC_Val2)
+  41:Core/Src/hc_sr04.c ****             {
+  42:Core/Src/hc_sr04.c ****                 Difference = (0xffff - IC_Val1) + IC_Val2;
+  43:Core/Src/hc_sr04.c ****             }
+  44:Core/Src/hc_sr04.c **** 
+  45:Core/Src/hc_sr04.c ****             Distance = Difference * .034 / 2;
+  46:Core/Src/hc_sr04.c ****             Echo_Raised = 0; // set it back to false
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 4
+
+
+  47:Core/Src/hc_sr04.c ****         }
+  48:Core/Src/hc_sr04.c ****     }
+  49:Core/Src/hc_sr04.c **** }...
+ 128              		.loc 1 49 1 view .LVU21
+ 129 002c 10BD     		pop	{r4, pc}
+ 130              	.LVL8:
+ 131              	.L7:
+  32:Core/Src/hc_sr04.c ****             IC_Val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read second value
+ 132              		.loc 1 32 13 is_stmt 1 view .LVU22
+  32:Core/Src/hc_sr04.c ****             IC_Val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read second value
+ 133              		.loc 1 32 23 is_stmt 0 view .LVU23
+ 134 002e 0021     		movs	r1, #0
+ 135 0030 FFF7FEFF 		bl	HAL_TIM_ReadCapturedValue
+ 136              	.LVL9:
+  32:Core/Src/hc_sr04.c ****             IC_Val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read second value
+ 137              		.loc 1 32 21 view .LVU24
+ 138 0034 194B     		ldr	r3, .L15+20
+ 139 0036 1860     		str	r0, [r3]
+  33:Core/Src/hc_sr04.c ****             __HAL_TIM_SET_COUNTER(htim, 0);                           // reset the counter
+ 140              		.loc 1 33 13 is_stmt 1 view .LVU25
+ 141 0038 2368     		ldr	r3, [r4]
+ 142 003a 0022     		movs	r2, #0
+ 143 003c 5A62     		str	r2, [r3, #36]
+  35:Core/Src/hc_sr04.c ****             if (IC_Val2 > IC_Val1)
+ 144              		.loc 1 35 13 view .LVU26
+  35:Core/Src/hc_sr04.c ****             if (IC_Val2 > IC_Val1)
+ 145              		.loc 1 35 25 is_stmt 0 view .LVU27
+ 146 003e 164B     		ldr	r3, .L15+16
+ 147 0040 1B68     		ldr	r3, [r3]
+  35:Core/Src/hc_sr04.c ****             if (IC_Val2 > IC_Val1)
+ 148              		.loc 1 35 16 view .LVU28
+ 149 0042 9842     		cmp	r0, r3
+ 150 0044 17D9     		bls	.L8
+  37:Core/Src/hc_sr04.c ****                 Difference = IC_Val2 - IC_Val1;
+ 151              		.loc 1 37 17 is_stmt 1 view .LVU29
+  37:Core/Src/hc_sr04.c ****                 Difference = IC_Val2 - IC_Val1;
+ 152              		.loc 1 37 38 is_stmt 0 view .LVU30
+ 153 0046 C01A     		subs	r0, r0, r3
+  37:Core/Src/hc_sr04.c ****                 Difference = IC_Val2 - IC_Val1;
+ 154              		.loc 1 37 28 view .LVU31
+ 155 0048 154B     		ldr	r3, .L15+24
+ 156 004a 1860     		str	r0, [r3]
+ 157              	.L9:
+  45:Core/Src/hc_sr04.c ****             Distance = Difference * .034 / 2;
+ 158              		.loc 1 45 13 is_stmt 1 view .LVU32
+  45:Core/Src/hc_sr04.c ****             Distance = Difference * .034 / 2;
+ 159              		.loc 1 45 35 is_stmt 0 view .LVU33
+ 160 004c 144B     		ldr	r3, .L15+24
+ 161 004e 1868     		ldr	r0, [r3]
+ 162 0050 FFF7FEFF 		bl	__aeabi_ui2d
+ 163              	.LVL10:
+ 164 0054 0CA3     		adr	r3, .L15
+ 165 0056 D3E90023 		ldrd	r2, [r3]
+ 166 005a FFF7FEFF 		bl	__aeabi_dmul
+ 167              	.LVL11:
+  45:Core/Src/hc_sr04.c ****             Distance = Difference * .034 / 2;
+ 168              		.loc 1 45 42 view .LVU34
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 5
+
+
+ 169 005e 0022     		movs	r2, #0
+ 170 0060 104B     		ldr	r3, .L15+28
+ 171 0062 FFF7FEFF 		bl	__aeabi_dmul
+ 172              	.LVL12:
+  45:Core/Src/hc_sr04.c ****             Distance = Difference * .034 / 2;
+ 173              		.loc 1 45 22 view .LVU35
+ 174 0066 FFF7FEFF 		bl	__aeabi_d2uiz
+ 175              	.LVL13:
+ 176 006a 0F4B     		ldr	r3, .L15+32
+ 177 006c 1860     		str	r0, [r3]
+  46:Core/Src/hc_sr04.c ****             Echo_Raised = 0; // set it back to false
+ 178              		.loc 1 46 13 is_stmt 1 view .LVU36
+  46:Core/Src/hc_sr04.c ****             Echo_Raised = 0; // set it back to false
+ 179              		.loc 1 46 25 is_stmt 0 view .LVU37
+ 180 006e 084B     		ldr	r3, .L15+8
+ 181 0070 0022     		movs	r2, #0
+ 182 0072 1A70     		strb	r2, [r3]
+ 183              		.loc 1 49 1 view .LVU38
+ 184 0074 DAE7     		b	.L5
+ 185              	.L8:
+  40:Core/Src/hc_sr04.c ****             else if (IC_Val1 > IC_Val2)
+ 186              		.loc 1 40 18 is_stmt 1 view .LVU39
+  40:Core/Src/hc_sr04.c ****             else if (IC_Val1 > IC_Val2)
+ 187              		.loc 1 40 21 is_stmt 0 view .LVU40
+ 188 0076 9842     		cmp	r0, r3
+ 189 0078 E8D2     		bcs	.L9
+  42:Core/Src/hc_sr04.c ****                 Difference = (0xffff - IC_Val1) + IC_Val2;
+ 190              		.loc 1 42 17 is_stmt 1 view .LVU41
+  42:Core/Src/hc_sr04.c ****                 Difference = (0xffff - IC_Val1) + IC_Val2;
+ 191              		.loc 1 42 49 is_stmt 0 view .LVU42
+ 192 007a C01A     		subs	r0, r0, r3
+ 193 007c 00F57F40 		add	r0, r0, #65280
+ 194 0080 FF30     		adds	r0, r0, #255
+  42:Core/Src/hc_sr04.c ****                 Difference = (0xffff - IC_Val1) + IC_Val2;
+ 195              		.loc 1 42 28 view .LVU43
+ 196 0082 074B     		ldr	r3, .L15+24
+ 197 0084 1860     		str	r0, [r3]
+ 198 0086 E1E7     		b	.L9
+ 199              	.L16:
+ 200              		.align	3
+ 201              	.L15:
+ 202 0088 9CC420B0 		.word	-1340029796
+ 203 008c 7268A13F 		.word	1067542642
+ 204 0090 00000000 		.word	.LANCHOR0
+ 205 0094 00040048 		.word	1207960576
+ 206 0098 00000000 		.word	.LANCHOR1
+ 207 009c 00000000 		.word	.LANCHOR2
+ 208 00a0 00000000 		.word	.LANCHOR3
+ 209 00a4 0000E03F 		.word	1071644672
+ 210 00a8 00000000 		.word	.LANCHOR4
+ 211              		.cfi_endproc
+ 212              	.LFE124:
+ 214              		.global	Distance
+ 215              		.global	Echo_Raised
+ 216              		.global	Difference
+ 217              		.global	IC_Val2
+ 218              		.global	IC_Val1
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 6
+
+
+ 219              		.section	.bss.Difference,"aw",%nobits
+ 220              		.align	2
+ 221              		.set	.LANCHOR3,. + 0
+ 224              	Difference:
+ 225 0000 00000000 		.space	4
+ 226              		.section	.bss.Distance,"aw",%nobits
+ 227              		.align	2
+ 228              		.set	.LANCHOR4,. + 0
+ 231              	Distance:
+ 232 0000 00000000 		.space	4
+ 233              		.section	.bss.Echo_Raised,"aw",%nobits
+ 234              		.set	.LANCHOR0,. + 0
+ 237              	Echo_Raised:
+ 238 0000 00       		.space	1
+ 239              		.section	.bss.IC_Val1,"aw",%nobits
+ 240              		.align	2
+ 241              		.set	.LANCHOR1,. + 0
+ 244              	IC_Val1:
+ 245 0000 00000000 		.space	4
+ 246              		.section	.bss.IC_Val2,"aw",%nobits
+ 247              		.align	2
+ 248              		.set	.LANCHOR2,. + 0
+ 251              	IC_Val2:
+ 252 0000 00000000 		.space	4
+ 253              		.text
+ 254              	.Letext0:
+ 255              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 256              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 257              		.file 4 "Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f303x8.h"
+ 258              		.file 5 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_def.h"
+ 259              		.file 6 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_gpio.h"
+ 260              		.file 7 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_dma.h"
+ 261              		.file 8 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h"
+ 262              		.file 9 "Core/Inc/tim.h"
+ARM GAS  C:\Users\walker\AppData\Local\Temp\ccEMyv41.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 hc_sr04.c
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:20     .text.HCSR04_Read:00000000 $t
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:26     .text.HCSR04_Read:00000000 HCSR04_Read
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:64     .text.HCSR04_Read:0000002c $d
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:72     .text.HAL_TIM_IC_CaptureCallback:00000000 $t
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:78     .text.HAL_TIM_IC_CaptureCallback:00000000 HAL_TIM_IC_CaptureCallback
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:202    .text.HAL_TIM_IC_CaptureCallback:00000088 $d
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:231    .bss.Distance:00000000 Distance
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:237    .bss.Echo_Raised:00000000 Echo_Raised
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:224    .bss.Difference:00000000 Difference
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:251    .bss.IC_Val2:00000000 IC_Val2
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:244    .bss.IC_Val1:00000000 IC_Val1
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:220    .bss.Difference:00000000 $d
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:227    .bss.Distance:00000000 $d
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:238    .bss.Echo_Raised:00000000 $d
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:240    .bss.IC_Val1:00000000 $d
+C:\Users\walker\AppData\Local\Temp\ccEMyv41.s:247    .bss.IC_Val2:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin
+delay_us
+HAL_TIM_IC_Start_IT
+htim17
+__aeabi_ui2d
+__aeabi_dmul
+__aeabi_d2uiz
+HAL_GPIO_TogglePin
+HAL_TIM_ReadCapturedValue

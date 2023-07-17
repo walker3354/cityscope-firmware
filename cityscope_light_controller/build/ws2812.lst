@@ -1,0 +1,598 @@
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"ws2812.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.sendByte,"ax",%progbits
+  20              		.align	1
+  21              		.global	sendByte
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	sendByte:
+  27              	.LVL0:
+  28              	.LFB124:
+  29              		.file 1 "Core/Src/ws2812.c"
+   1:Core/Src/ws2812.c **** #include "tim.h"
+   2:Core/Src/ws2812.c **** #include "ws2812.h"
+   3:Core/Src/ws2812.c **** 
+   4:Core/Src/ws2812.c **** inline void delay_ns(uint16_t ns)
+   5:Core/Src/ws2812.c **** {
+   6:Core/Src/ws2812.c ****   uint16_t iterations = ns / cycle;
+   7:Core/Src/ws2812.c ****   for (volatile uint16_t i = 0; i < iterations; i++)
+   8:Core/Src/ws2812.c ****   {
+   9:Core/Src/ws2812.c ****     __NOP();
+  10:Core/Src/ws2812.c ****   }
+  11:Core/Src/ws2812.c **** }
+  12:Core/Src/ws2812.c **** 
+  13:Core/Src/ws2812.c **** void sendByte(uint8_t byte)
+  14:Core/Src/ws2812.c **** {
+  30              		.loc 1 14 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 8
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 14 1 is_stmt 0 view .LVU1
+  35 0000 70B5     		push	{r4, r5, r6, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 16
+  38              		.cfi_offset 4, -16
+  39              		.cfi_offset 5, -12
+  40              		.cfi_offset 6, -8
+  41              		.cfi_offset 14, -4
+  42 0002 82B0     		sub	sp, sp, #8
+  43              	.LCFI1:
+  44              		.cfi_def_cfa_offset 24
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 2
+
+
+  45 0004 0546     		mov	r5, r0
+  15:Core/Src/ws2812.c ****   for (uint8_t bit = 0x80; bit; bit >>= 1)
+  46              		.loc 1 15 3 is_stmt 1 view .LVU2
+  47              	.LBB18:
+  48              		.loc 1 15 8 view .LVU3
+  49              	.LVL1:
+  50              		.loc 1 15 16 is_stmt 0 view .LVU4
+  51 0006 8024     		movs	r4, #128
+  52              		.loc 1 15 3 view .LVU5
+  53 0008 24E0     		b	.L2
+  54              	.LVL2:
+  55              	.L5:
+  56              	.LBB19:
+  57              	.LBB20:
+  58              	.LBB21:
+   9:Core/Src/ws2812.c ****   }
+  59              		.loc 1 9 5 is_stmt 1 view .LVU6
+  60              		.syntax unified
+  61              	@ 9 "Core/Src/ws2812.c" 1
+  62 000a 00BF     		nop
+  63              	@ 0 "" 2
+   7:Core/Src/ws2812.c ****   {
+  64              		.loc 1 7 49 view .LVU7
+   7:Core/Src/ws2812.c ****   {
+  65              		.loc 1 7 50 is_stmt 0 view .LVU8
+  66              		.thumb
+  67              		.syntax unified
+  68 000c BDF80230 		ldrh	r3, [sp, #2]
+  69 0010 9BB2     		uxth	r3, r3
+  70 0012 0133     		adds	r3, r3, #1
+  71 0014 9BB2     		uxth	r3, r3
+  72 0016 ADF80230 		strh	r3, [sp, #2]	@ movhi
+  73              	.L4:
+   7:Core/Src/ws2812.c ****   {
+  74              		.loc 1 7 33 is_stmt 1 view .LVU9
+   7:Core/Src/ws2812.c ****   {
+  75              		.loc 1 7 35 is_stmt 0 view .LVU10
+  76 001a BDF80230 		ldrh	r3, [sp, #2]
+  77 001e 9BB2     		uxth	r3, r3
+   7:Core/Src/ws2812.c ****   {
+  78              		.loc 1 7 3 view .LVU11
+  79 0020 012B     		cmp	r3, #1
+  80 0022 F2D9     		bls	.L5
+  81              	.LVL3:
+   7:Core/Src/ws2812.c ****   {
+  82              		.loc 1 7 3 view .LVU12
+  83              	.LBE21:
+  84              	.LBE20:
+  85              	.LBE19:
+  16:Core/Src/ws2812.c ****   {
+  17:Core/Src/ws2812.c ****     if (byte & bit) // 1 bit
+  18:Core/Src/ws2812.c ****     {
+  19:Core/Src/ws2812.c ****       HAL_GPIO_WritePin(WS2812_GPIO_Port, WS2812_Pin, 1);
+  20:Core/Src/ws2812.c ****       delay_ns(T1H);
+  21:Core/Src/ws2812.c ****       HAL_GPIO_WritePin(WS2812_GPIO_Port, WS2812_Pin, 0);
+  86              		.loc 1 21 7 is_stmt 1 view .LVU13
+  87 0024 0022     		movs	r2, #0
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 3
+
+
+  88 0026 0121     		movs	r1, #1
+  89 0028 4FF09040 		mov	r0, #1207959552
+  90 002c FFF7FEFF 		bl	HAL_GPIO_WritePin
+  91              	.LVL4:
+  22:Core/Src/ws2812.c ****       delay_ns(T1L);
+  92              		.loc 1 22 7 view .LVU14
+  93              	.LBB24:
+  94              	.LBI24:
+   4:Core/Src/ws2812.c **** {
+  95              		.loc 1 4 13 view .LVU15
+  96              	.LBB25:
+   6:Core/Src/ws2812.c ****   for (volatile uint16_t i = 0; i < iterations; i++)
+  97              		.loc 1 6 3 view .LVU16
+   7:Core/Src/ws2812.c ****   {
+  98              		.loc 1 7 3 view .LVU17
+  99              	.LBB26:
+   7:Core/Src/ws2812.c ****   {
+ 100              		.loc 1 7 8 view .LVU18
+   7:Core/Src/ws2812.c ****   {
+ 101              		.loc 1 7 26 is_stmt 0 view .LVU19
+ 102 0030 0023     		movs	r3, #0
+ 103 0032 ADF80030 		strh	r3, [sp]	@ movhi
+   7:Core/Src/ws2812.c ****   {
+ 104              		.loc 1 7 3 view .LVU20
+ 105 0036 07E0     		b	.L6
+ 106              	.L7:
+   9:Core/Src/ws2812.c ****   }
+ 107              		.loc 1 9 5 is_stmt 1 view .LVU21
+ 108              		.syntax unified
+ 109              	@ 9 "Core/Src/ws2812.c" 1
+ 110 0038 00BF     		nop
+ 111              	@ 0 "" 2
+   7:Core/Src/ws2812.c ****   {
+ 112              		.loc 1 7 49 view .LVU22
+   7:Core/Src/ws2812.c ****   {
+ 113              		.loc 1 7 50 is_stmt 0 view .LVU23
+ 114              		.thumb
+ 115              		.syntax unified
+ 116 003a BDF80030 		ldrh	r3, [sp]
+ 117 003e 9BB2     		uxth	r3, r3
+ 118 0040 0133     		adds	r3, r3, #1
+ 119 0042 9BB2     		uxth	r3, r3
+ 120 0044 ADF80030 		strh	r3, [sp]	@ movhi
+ 121              	.L6:
+   7:Core/Src/ws2812.c ****   {
+ 122              		.loc 1 7 33 is_stmt 1 view .LVU24
+   7:Core/Src/ws2812.c ****   {
+ 123              		.loc 1 7 35 is_stmt 0 view .LVU25
+ 124 0048 BDF80030 		ldrh	r3, [sp]
+ 125 004c 9BB2     		uxth	r3, r3
+   7:Core/Src/ws2812.c ****   {
+ 126              		.loc 1 7 3 view .LVU26
+ 127 004e 012B     		cmp	r3, #1
+ 128 0050 F2D9     		bls	.L7
+ 129              	.LVL5:
+ 130              	.L8:
+   7:Core/Src/ws2812.c ****   {
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 4
+
+
+ 131              		.loc 1 7 3 view .LVU27
+ 132              	.LBE26:
+ 133              	.LBE25:
+ 134              	.LBE24:
+  15:Core/Src/ws2812.c ****   {
+ 135              		.loc 1 15 33 is_stmt 1 discriminator 2 view .LVU28
+  15:Core/Src/ws2812.c ****   {
+ 136              		.loc 1 15 37 is_stmt 0 discriminator 2 view .LVU29
+ 137 0052 6408     		lsrs	r4, r4, #1
+ 138              	.LVL6:
+ 139              	.L2:
+  15:Core/Src/ws2812.c ****   {
+ 140              		.loc 1 15 28 is_stmt 1 discriminator 1 view .LVU30
+  15:Core/Src/ws2812.c ****   {
+ 141              		.loc 1 15 3 is_stmt 0 discriminator 1 view .LVU31
+ 142 0054 6CB3     		cbz	r4, .L13
+  17:Core/Src/ws2812.c ****     {
+ 143              		.loc 1 17 5 is_stmt 1 view .LVU32
+  17:Core/Src/ws2812.c ****     {
+ 144              		.loc 1 17 8 is_stmt 0 view .LVU33
+ 145 0056 2C42     		tst	r4, r5
+ 146 0058 09D0     		beq	.L3
+  19:Core/Src/ws2812.c ****       delay_ns(T1H);
+ 147              		.loc 1 19 7 is_stmt 1 view .LVU34
+ 148 005a 0122     		movs	r2, #1
+ 149 005c 1146     		mov	r1, r2
+ 150 005e 4FF09040 		mov	r0, #1207959552
+ 151 0062 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 152              	.LVL7:
+  20:Core/Src/ws2812.c ****       HAL_GPIO_WritePin(WS2812_GPIO_Port, WS2812_Pin, 0);
+ 153              		.loc 1 20 7 view .LVU35
+ 154              	.LBB27:
+ 155              	.LBI19:
+   4:Core/Src/ws2812.c **** {
+ 156              		.loc 1 4 13 view .LVU36
+ 157              	.LBB23:
+   6:Core/Src/ws2812.c ****   for (volatile uint16_t i = 0; i < iterations; i++)
+ 158              		.loc 1 6 3 view .LVU37
+   7:Core/Src/ws2812.c ****   {
+ 159              		.loc 1 7 3 view .LVU38
+ 160              	.LBB22:
+   7:Core/Src/ws2812.c ****   {
+ 161              		.loc 1 7 8 view .LVU39
+   7:Core/Src/ws2812.c ****   {
+ 162              		.loc 1 7 26 is_stmt 0 view .LVU40
+ 163 0066 0023     		movs	r3, #0
+ 164 0068 ADF80230 		strh	r3, [sp, #2]	@ movhi
+   7:Core/Src/ws2812.c ****   {
+ 165              		.loc 1 7 3 view .LVU41
+ 166 006c D5E7     		b	.L4
+ 167              	.LVL8:
+ 168              	.L3:
+   7:Core/Src/ws2812.c ****   {
+ 169              		.loc 1 7 3 view .LVU42
+ 170              	.LBE22:
+ 171              	.LBE23:
+ 172              	.LBE27:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 5
+
+
+  23:Core/Src/ws2812.c ****     }
+  24:Core/Src/ws2812.c ****     else // 0 bit
+  25:Core/Src/ws2812.c ****     {
+  26:Core/Src/ws2812.c ****       HAL_GPIO_WritePin(WS2812_GPIO_Port, WS2812_Pin, 1);
+ 173              		.loc 1 26 7 is_stmt 1 view .LVU43
+ 174 006e 0122     		movs	r2, #1
+ 175 0070 1146     		mov	r1, r2
+ 176 0072 4FF09040 		mov	r0, #1207959552
+ 177 0076 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 178              	.LVL9:
+  27:Core/Src/ws2812.c ****       delay_ns(T0H);
+ 179              		.loc 1 27 7 view .LVU44
+ 180              	.LBB28:
+ 181              	.LBI28:
+   4:Core/Src/ws2812.c **** {
+ 182              		.loc 1 4 13 view .LVU45
+ 183              	.LBB29:
+   6:Core/Src/ws2812.c ****   for (volatile uint16_t i = 0; i < iterations; i++)
+ 184              		.loc 1 6 3 view .LVU46
+   7:Core/Src/ws2812.c ****   {
+ 185              		.loc 1 7 3 view .LVU47
+ 186              	.LBB30:
+   7:Core/Src/ws2812.c ****   {
+ 187              		.loc 1 7 8 view .LVU48
+   7:Core/Src/ws2812.c ****   {
+ 188              		.loc 1 7 26 is_stmt 0 view .LVU49
+ 189 007a 0026     		movs	r6, #0
+ 190 007c ADF80660 		strh	r6, [sp, #6]	@ movhi
+   7:Core/Src/ws2812.c ****   {
+ 191              		.loc 1 7 33 is_stmt 1 view .LVU50
+   7:Core/Src/ws2812.c ****   {
+ 192              		.loc 1 7 35 is_stmt 0 view .LVU51
+ 193 0080 BDF80630 		ldrh	r3, [sp, #6]
+ 194              	.LVL10:
+   7:Core/Src/ws2812.c ****   {
+ 195              		.loc 1 7 35 view .LVU52
+ 196              	.LBE30:
+ 197              	.LBE29:
+ 198              	.LBE28:
+  28:Core/Src/ws2812.c ****       HAL_GPIO_WritePin(WS2812_GPIO_Port, WS2812_Pin, 0);
+ 199              		.loc 1 28 7 is_stmt 1 view .LVU53
+ 200 0084 3246     		mov	r2, r6
+ 201 0086 0121     		movs	r1, #1
+ 202 0088 4FF09040 		mov	r0, #1207959552
+ 203 008c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 204              	.LVL11:
+  29:Core/Src/ws2812.c ****       delay_ns(T0L);
+ 205              		.loc 1 29 7 view .LVU54
+ 206              	.LBB31:
+ 207              	.LBI31:
+   4:Core/Src/ws2812.c **** {
+ 208              		.loc 1 4 13 view .LVU55
+ 209              	.LBB32:
+   6:Core/Src/ws2812.c ****   for (volatile uint16_t i = 0; i < iterations; i++)
+ 210              		.loc 1 6 3 view .LVU56
+   7:Core/Src/ws2812.c ****   {
+ 211              		.loc 1 7 3 view .LVU57
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 6
+
+
+ 212              	.LBB33:
+   7:Core/Src/ws2812.c ****   {
+ 213              		.loc 1 7 8 view .LVU58
+   7:Core/Src/ws2812.c ****   {
+ 214              		.loc 1 7 26 is_stmt 0 view .LVU59
+ 215 0090 ADF80460 		strh	r6, [sp, #4]	@ movhi
+   7:Core/Src/ws2812.c ****   {
+ 216              		.loc 1 7 3 view .LVU60
+ 217 0094 07E0     		b	.L9
+ 218              	.L10:
+   9:Core/Src/ws2812.c ****   }
+ 219              		.loc 1 9 5 is_stmt 1 view .LVU61
+ 220              		.syntax unified
+ 221              	@ 9 "Core/Src/ws2812.c" 1
+ 222 0096 00BF     		nop
+ 223              	@ 0 "" 2
+   7:Core/Src/ws2812.c ****   {
+ 224              		.loc 1 7 49 view .LVU62
+   7:Core/Src/ws2812.c ****   {
+ 225              		.loc 1 7 50 is_stmt 0 view .LVU63
+ 226              		.thumb
+ 227              		.syntax unified
+ 228 0098 BDF80430 		ldrh	r3, [sp, #4]
+ 229 009c 9BB2     		uxth	r3, r3
+ 230 009e 0133     		adds	r3, r3, #1
+ 231 00a0 9BB2     		uxth	r3, r3
+ 232 00a2 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 233              	.L9:
+   7:Core/Src/ws2812.c ****   {
+ 234              		.loc 1 7 33 is_stmt 1 view .LVU64
+   7:Core/Src/ws2812.c ****   {
+ 235              		.loc 1 7 35 is_stmt 0 view .LVU65
+ 236 00a6 BDF80430 		ldrh	r3, [sp, #4]
+ 237 00aa 9BB2     		uxth	r3, r3
+   7:Core/Src/ws2812.c ****   {
+ 238              		.loc 1 7 3 view .LVU66
+ 239 00ac 012B     		cmp	r3, #1
+ 240 00ae F2D9     		bls	.L10
+ 241 00b0 CFE7     		b	.L8
+ 242              	.LVL12:
+ 243              	.L13:
+   7:Core/Src/ws2812.c ****   {
+ 244              		.loc 1 7 3 view .LVU67
+ 245              	.LBE33:
+ 246              	.LBE32:
+ 247              	.LBE31:
+ 248              	.LBE18:
+  30:Core/Src/ws2812.c ****     }
+  31:Core/Src/ws2812.c ****   }
+  32:Core/Src/ws2812.c **** }
+ 249              		.loc 1 32 1 view .LVU68
+ 250 00b2 02B0     		add	sp, sp, #8
+ 251              	.LCFI2:
+ 252              		.cfi_def_cfa_offset 16
+ 253              		@ sp needed
+ 254 00b4 70BD     		pop	{r4, r5, r6, pc}
+ 255              		.loc 1 32 1 view .LVU69
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 7
+
+
+ 256              		.cfi_endproc
+ 257              	.LFE124:
+ 259              		.section	.text.sendPixel,"ax",%progbits
+ 260              		.align	1
+ 261              		.global	sendPixel
+ 262              		.syntax unified
+ 263              		.thumb
+ 264              		.thumb_func
+ 266              	sendPixel:
+ 267              	.LVL13:
+ 268              	.LFB125:
+  33:Core/Src/ws2812.c **** void sendPixel(uint8_t r, uint8_t g, uint8_t b)
+  34:Core/Src/ws2812.c **** {
+ 269              		.loc 1 34 1 is_stmt 1 view -0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 0
+ 272              		@ frame_needed = 0, uses_anonymous_args = 0
+ 273              		.loc 1 34 1 is_stmt 0 view .LVU71
+ 274 0000 38B5     		push	{r3, r4, r5, lr}
+ 275              	.LCFI3:
+ 276              		.cfi_def_cfa_offset 16
+ 277              		.cfi_offset 3, -16
+ 278              		.cfi_offset 4, -12
+ 279              		.cfi_offset 5, -8
+ 280              		.cfi_offset 14, -4
+ 281 0002 0546     		mov	r5, r0
+ 282 0004 1446     		mov	r4, r2
+  35:Core/Src/ws2812.c ****   sendByte(g);
+ 283              		.loc 1 35 3 is_stmt 1 view .LVU72
+ 284 0006 0846     		mov	r0, r1
+ 285              	.LVL14:
+ 286              		.loc 1 35 3 is_stmt 0 view .LVU73
+ 287 0008 FFF7FEFF 		bl	sendByte
+ 288              	.LVL15:
+  36:Core/Src/ws2812.c ****   sendByte(r);
+ 289              		.loc 1 36 3 is_stmt 1 view .LVU74
+ 290 000c 2846     		mov	r0, r5
+ 291 000e FFF7FEFF 		bl	sendByte
+ 292              	.LVL16:
+  37:Core/Src/ws2812.c ****   sendByte(b);
+ 293              		.loc 1 37 3 view .LVU75
+ 294 0012 2046     		mov	r0, r4
+ 295 0014 FFF7FEFF 		bl	sendByte
+ 296              	.LVL17:
+  38:Core/Src/ws2812.c **** }
+ 297              		.loc 1 38 1 is_stmt 0 view .LVU76
+ 298 0018 38BD     		pop	{r3, r4, r5, pc}
+ 299              		.cfi_endproc
+ 300              	.LFE125:
+ 302              		.section	.text.ws2812_reset,"ax",%progbits
+ 303              		.align	1
+ 304              		.global	ws2812_reset
+ 305              		.syntax unified
+ 306              		.thumb
+ 307              		.thumb_func
+ 309              	ws2812_reset:
+ 310              	.LFB126:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 8
+
+
+  39:Core/Src/ws2812.c **** 
+  40:Core/Src/ws2812.c **** void ws2812_reset(void)
+  41:Core/Src/ws2812.c **** {
+ 311              		.loc 1 41 1 is_stmt 1 view -0
+ 312              		.cfi_startproc
+ 313              		@ args = 0, pretend = 0, frame = 8
+ 314              		@ frame_needed = 0, uses_anonymous_args = 0
+ 315 0000 00B5     		push	{lr}
+ 316              	.LCFI4:
+ 317              		.cfi_def_cfa_offset 4
+ 318              		.cfi_offset 14, -4
+ 319 0002 83B0     		sub	sp, sp, #12
+ 320              	.LCFI5:
+ 321              		.cfi_def_cfa_offset 16
+  42:Core/Src/ws2812.c ****   HAL_GPIO_WritePin(WS2812_GPIO_Port, WS2812_Pin, 0);
+ 322              		.loc 1 42 3 view .LVU78
+ 323 0004 0022     		movs	r2, #0
+ 324 0006 0121     		movs	r1, #1
+ 325 0008 4FF09040 		mov	r0, #1207959552
+ 326 000c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 327              	.LVL18:
+  43:Core/Src/ws2812.c ****   delay_ns(RES);
+ 328              		.loc 1 43 3 view .LVU79
+ 329              	.LBB34:
+ 330              	.LBI34:
+   4:Core/Src/ws2812.c **** {
+ 331              		.loc 1 4 13 view .LVU80
+ 332              	.LBB35:
+   6:Core/Src/ws2812.c ****   for (volatile uint16_t i = 0; i < iterations; i++)
+ 333              		.loc 1 6 3 view .LVU81
+   7:Core/Src/ws2812.c ****   {
+ 334              		.loc 1 7 3 view .LVU82
+ 335              	.LBB36:
+   7:Core/Src/ws2812.c ****   {
+ 336              		.loc 1 7 8 view .LVU83
+   7:Core/Src/ws2812.c ****   {
+ 337              		.loc 1 7 26 is_stmt 0 view .LVU84
+ 338 0010 0023     		movs	r3, #0
+ 339 0012 ADF80630 		strh	r3, [sp, #6]	@ movhi
+   7:Core/Src/ws2812.c ****   {
+ 340              		.loc 1 7 3 view .LVU85
+ 341 0016 07E0     		b	.L17
+ 342              	.L18:
+   9:Core/Src/ws2812.c ****   }
+ 343              		.loc 1 9 5 is_stmt 1 view .LVU86
+ 344              		.syntax unified
+ 345              	@ 9 "Core/Src/ws2812.c" 1
+ 346 0018 00BF     		nop
+ 347              	@ 0 "" 2
+   7:Core/Src/ws2812.c ****   {
+ 348              		.loc 1 7 49 view .LVU87
+   7:Core/Src/ws2812.c ****   {
+ 349              		.loc 1 7 50 is_stmt 0 view .LVU88
+ 350              		.thumb
+ 351              		.syntax unified
+ 352 001a BDF80630 		ldrh	r3, [sp, #6]
+ 353 001e 9BB2     		uxth	r3, r3
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 9
+
+
+ 354 0020 0133     		adds	r3, r3, #1
+ 355 0022 9BB2     		uxth	r3, r3
+ 356 0024 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 357              	.L17:
+   7:Core/Src/ws2812.c ****   {
+ 358              		.loc 1 7 33 is_stmt 1 view .LVU89
+   7:Core/Src/ws2812.c ****   {
+ 359              		.loc 1 7 35 is_stmt 0 view .LVU90
+ 360 0028 BDF80630 		ldrh	r3, [sp, #6]
+ 361 002c 9BB2     		uxth	r3, r3
+   7:Core/Src/ws2812.c ****   {
+ 362              		.loc 1 7 3 view .LVU91
+ 363 002e 0C2B     		cmp	r3, #12
+ 364 0030 F2D9     		bls	.L18
+ 365              	.LBE36:
+ 366              	.LBE35:
+ 367              	.LBE34:
+  44:Core/Src/ws2812.c **** }
+ 368              		.loc 1 44 1 view .LVU92
+ 369 0032 03B0     		add	sp, sp, #12
+ 370              	.LCFI6:
+ 371              		.cfi_def_cfa_offset 4
+ 372              		@ sp needed
+ 373 0034 5DF804FB 		ldr	pc, [sp], #4
+ 374              		.cfi_endproc
+ 375              	.LFE126:
+ 377              		.section	.text.clear,"ax",%progbits
+ 378              		.align	1
+ 379              		.global	clear
+ 380              		.syntax unified
+ 381              		.thumb
+ 382              		.thumb_func
+ 384              	clear:
+ 385              	.LFB127:
+  45:Core/Src/ws2812.c **** 
+  46:Core/Src/ws2812.c **** void clear(void)
+  47:Core/Src/ws2812.c **** {
+ 386              		.loc 1 47 1 is_stmt 1 view -0
+ 387              		.cfi_startproc
+ 388              		@ args = 0, pretend = 0, frame = 0
+ 389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 390 0000 10B5     		push	{r4, lr}
+ 391              	.LCFI7:
+ 392              		.cfi_def_cfa_offset 8
+ 393              		.cfi_offset 4, -8
+ 394              		.cfi_offset 14, -4
+  48:Core/Src/ws2812.c ****   for (int i = 0; i < WS2821_MAX_LED; i++)
+ 395              		.loc 1 48 3 view .LVU94
+ 396              	.LBB37:
+ 397              		.loc 1 48 8 view .LVU95
+ 398              	.LVL19:
+ 399              		.loc 1 48 12 is_stmt 0 view .LVU96
+ 400 0002 0024     		movs	r4, #0
+ 401              		.loc 1 48 3 view .LVU97
+ 402 0004 05E0     		b	.L21
+ 403              	.LVL20:
+ 404              	.L22:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 10
+
+
+  49:Core/Src/ws2812.c ****   {
+  50:Core/Src/ws2812.c ****     sendPixel(0, 0, 0);
+ 405              		.loc 1 50 5 is_stmt 1 discriminator 3 view .LVU98
+ 406 0006 0022     		movs	r2, #0
+ 407 0008 1146     		mov	r1, r2
+ 408 000a 1046     		mov	r0, r2
+ 409 000c FFF7FEFF 		bl	sendPixel
+ 410              	.LVL21:
+  48:Core/Src/ws2812.c ****   for (int i = 0; i < WS2821_MAX_LED; i++)
+ 411              		.loc 1 48 39 discriminator 3 view .LVU99
+  48:Core/Src/ws2812.c ****   for (int i = 0; i < WS2821_MAX_LED; i++)
+ 412              		.loc 1 48 40 is_stmt 0 discriminator 3 view .LVU100
+ 413 0010 0134     		adds	r4, r4, #1
+ 414              	.LVL22:
+ 415              	.L21:
+  48:Core/Src/ws2812.c ****   for (int i = 0; i < WS2821_MAX_LED; i++)
+ 416              		.loc 1 48 19 is_stmt 1 discriminator 1 view .LVU101
+  48:Core/Src/ws2812.c ****   for (int i = 0; i < WS2821_MAX_LED; i++)
+ 417              		.loc 1 48 3 is_stmt 0 discriminator 1 view .LVU102
+ 418 0012 B4F57A7F 		cmp	r4, #1000
+ 419 0016 F6DB     		blt	.L22
+ 420              	.LBE37:
+  51:Core/Src/ws2812.c ****   }
+  52:Core/Src/ws2812.c ****   ws2812_reset();
+ 421              		.loc 1 52 3 is_stmt 1 view .LVU103
+ 422 0018 FFF7FEFF 		bl	ws2812_reset
+ 423              	.LVL23:
+  53:Core/Src/ws2812.c **** }...
+ 424              		.loc 1 53 1 is_stmt 0 view .LVU104
+ 425 001c 10BD     		pop	{r4, pc}
+ 426              		.loc 1 53 1 view .LVU105
+ 427              		.cfi_endproc
+ 428              	.LFE127:
+ 430              		.text
+ 431              	.Letext0:
+ 432              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 433              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 434              		.file 4 "Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f303x8.h"
+ 435              		.file 5 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_gpio.h"
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ws2812.c
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:20     .text.sendByte:00000000 $t
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:26     .text.sendByte:00000000 sendByte
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:260    .text.sendPixel:00000000 $t
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:266    .text.sendPixel:00000000 sendPixel
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:303    .text.ws2812_reset:00000000 $t
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:309    .text.ws2812_reset:00000000 ws2812_reset
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:378    .text.clear:00000000 $t
+C:\Users\walker\AppData\Local\Temp\cc7NwMQ8.s:384    .text.clear:00000000 clear
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin

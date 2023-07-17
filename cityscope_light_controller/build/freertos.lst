@@ -1,0 +1,1539 @@
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"freertos.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.canopen_task,"ax",%progbits
+  20              		.align	1
+  21              		.global	canopen_task
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	canopen_task:
+  27              	.LVL0:
+  28              	.LFB169:
+  29              		.file 1 "Core/Src/freertos.c"
+   1:Core/Src/freertos.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/freertos.c **** /**
+   3:Core/Src/freertos.c ****  ******************************************************************************
+   4:Core/Src/freertos.c ****  * File Name          : freertos.c
+   5:Core/Src/freertos.c ****  * Description        : Code for freertos applications
+   6:Core/Src/freertos.c ****  ******************************************************************************
+   7:Core/Src/freertos.c ****  * @attention
+   8:Core/Src/freertos.c ****  *
+   9:Core/Src/freertos.c ****  * Copyright (c) 2023 STMicroelectronics.
+  10:Core/Src/freertos.c ****  * All rights reserved.
+  11:Core/Src/freertos.c ****  *
+  12:Core/Src/freertos.c ****  * This software is licensed under terms that can be found in the LICENSE file
+  13:Core/Src/freertos.c ****  * in the root directory of this software component.
+  14:Core/Src/freertos.c ****  * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Core/Src/freertos.c ****  *
+  16:Core/Src/freertos.c ****  ******************************************************************************
+  17:Core/Src/freertos.c ****  */
+  18:Core/Src/freertos.c **** /* USER CODE END Header */
+  19:Core/Src/freertos.c **** 
+  20:Core/Src/freertos.c **** /* Includes ------------------------------------------------------------------*/
+  21:Core/Src/freertos.c **** #include "FreeRTOS.h"
+  22:Core/Src/freertos.c **** #include "task.h"
+  23:Core/Src/freertos.c **** #include "main.h"
+  24:Core/Src/freertos.c **** #include "cmsis_os.h"
+  25:Core/Src/freertos.c **** 
+  26:Core/Src/freertos.c **** /* Private includes ----------------------------------------------------------*/
+  27:Core/Src/freertos.c **** /* USER CODE BEGIN Includes */
+  28:Core/Src/freertos.c **** #include "hc_sr04.h"
+  29:Core/Src/freertos.c **** #include "ws2812.h"
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 2
+
+
+  30:Core/Src/freertos.c **** #include "tim.h"
+  31:Core/Src/freertos.c **** #include "can.h"
+  32:Core/Src/freertos.c **** #include "CO_app_STM32.h"
+  33:Core/Src/freertos.c **** #include "OD.h"
+  34:Core/Src/freertos.c **** /* USER CODE END Includes */
+  35:Core/Src/freertos.c **** 
+  36:Core/Src/freertos.c **** /* Private typedef -----------------------------------------------------------*/
+  37:Core/Src/freertos.c **** /* USER CODE BEGIN PTD */
+  38:Core/Src/freertos.c **** 
+  39:Core/Src/freertos.c **** /* USER CODE END PTD */
+  40:Core/Src/freertos.c **** 
+  41:Core/Src/freertos.c **** /* Private define ------------------------------------------------------------*/
+  42:Core/Src/freertos.c **** /* USER CODE BEGIN PD */
+  43:Core/Src/freertos.c **** 
+  44:Core/Src/freertos.c **** /* USER CODE END PD */
+  45:Core/Src/freertos.c **** 
+  46:Core/Src/freertos.c **** /* Private macro -------------------------------------------------------------*/
+  47:Core/Src/freertos.c **** /* USER CODE BEGIN PM */
+  48:Core/Src/freertos.c **** 
+  49:Core/Src/freertos.c **** /* USER CODE END PM */
+  50:Core/Src/freertos.c **** 
+  51:Core/Src/freertos.c **** /* Private variables ---------------------------------------------------------*/
+  52:Core/Src/freertos.c **** /* USER CODE BEGIN Variables */
+  53:Core/Src/freertos.c **** 
+  54:Core/Src/freertos.c **** /* USER CODE END Variables */
+  55:Core/Src/freertos.c **** /* Definitions for ReadDistance */
+  56:Core/Src/freertos.c **** 
+  57:Core/Src/freertos.c **** /* Definitions for UITask */
+  58:Core/Src/freertos.c **** 
+  59:Core/Src/freertos.c **** /* Definitions for canopenTask */
+  60:Core/Src/freertos.c **** osThreadId_t canopenTaskHandle;
+  61:Core/Src/freertos.c **** const osThreadAttr_t canopenTask_attributes = {
+  62:Core/Src/freertos.c ****     .name = "canopenTask",
+  63:Core/Src/freertos.c ****     .stack_size = 128 * 4,
+  64:Core/Src/freertos.c ****     .priority = (osPriority_t)osPriorityRealtime,
+  65:Core/Src/freertos.c **** };
+  66:Core/Src/freertos.c **** 
+  67:Core/Src/freertos.c **** /* Private function prototypes -----------------------------------------------*/
+  68:Core/Src/freertos.c **** /* USER CODE BEGIN FunctionPrototypes */
+  69:Core/Src/freertos.c **** 
+  70:Core/Src/freertos.c **** /* USER CODE END FunctionPrototypes */
+  71:Core/Src/freertos.c **** 
+  72:Core/Src/freertos.c **** void StartReadDistance(void *argument);
+  73:Core/Src/freertos.c **** void StartUITask(void *argument);
+  74:Core/Src/freertos.c **** void canopen_task(void *argument);
+  75:Core/Src/freertos.c **** 
+  76:Core/Src/freertos.c **** void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+  77:Core/Src/freertos.c **** 
+  78:Core/Src/freertos.c **** /**
+  79:Core/Src/freertos.c ****  * @brief  FreeRTOS initialization
+  80:Core/Src/freertos.c ****  * @param  None
+  81:Core/Src/freertos.c ****  * @retval None
+  82:Core/Src/freertos.c ****  */
+  83:Core/Src/freertos.c **** void MX_FREERTOS_Init(void)
+  84:Core/Src/freertos.c **** {
+  85:Core/Src/freertos.c ****   /* USER CODE BEGIN Init */
+  86:Core/Src/freertos.c **** 
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 3
+
+
+  87:Core/Src/freertos.c ****   /* USER CODE END Init */
+  88:Core/Src/freertos.c **** 
+  89:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_MUTEX */
+  90:Core/Src/freertos.c ****   /* add mutexes, ... */
+  91:Core/Src/freertos.c ****   /* USER CODE END RTOS_MUTEX */
+  92:Core/Src/freertos.c **** 
+  93:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_SEMAPHORES */
+  94:Core/Src/freertos.c ****   /* add semaphores, ... */
+  95:Core/Src/freertos.c ****   /* USER CODE END RTOS_SEMAPHORES */
+  96:Core/Src/freertos.c **** 
+  97:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_TIMERS */
+  98:Core/Src/freertos.c ****   /* start timers, add new ones, ... */
+  99:Core/Src/freertos.c ****   /* USER CODE END RTOS_TIMERS */
+ 100:Core/Src/freertos.c **** 
+ 101:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_QUEUES */
+ 102:Core/Src/freertos.c ****   /* add queues, ... */
+ 103:Core/Src/freertos.c ****   /* USER CODE END RTOS_QUEUES */
+ 104:Core/Src/freertos.c **** 
+ 105:Core/Src/freertos.c ****   /* Create the thread(s) */
+ 106:Core/Src/freertos.c ****   /* creation of ReadDistance */
+ 107:Core/Src/freertos.c **** 
+ 108:Core/Src/freertos.c ****   /* creation of UITask */
+ 109:Core/Src/freertos.c **** 
+ 110:Core/Src/freertos.c ****   /* creation of canopenTask */
+ 111:Core/Src/freertos.c ****   canopenTaskHandle = osThreadNew(canopen_task, NULL, &canopenTask_attributes);
+ 112:Core/Src/freertos.c **** 
+ 113:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_THREADS */
+ 114:Core/Src/freertos.c ****   /* add threads, ... */
+ 115:Core/Src/freertos.c ****   /* USER CODE END RTOS_THREADS */
+ 116:Core/Src/freertos.c **** 
+ 117:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_EVENTS */
+ 118:Core/Src/freertos.c ****   /* add events, ... */
+ 119:Core/Src/freertos.c ****   /* USER CODE END RTOS_EVENTS */
+ 120:Core/Src/freertos.c **** }
+ 121:Core/Src/freertos.c **** 
+ 122:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartReadDistance */
+ 123:Core/Src/freertos.c **** /**
+ 124:Core/Src/freertos.c ****  * @brief  Function implementing the ReadDistance thread.
+ 125:Core/Src/freertos.c ****  * @param  argument: Not used
+ 126:Core/Src/freertos.c ****  * @retval None
+ 127:Core/Src/freertos.c ****  */
+ 128:Core/Src/freertos.c **** /* USER CODE END Header_StartReadDistance */
+ 129:Core/Src/freertos.c **** 
+ 130:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartUITask */
+ 131:Core/Src/freertos.c **** /**
+ 132:Core/Src/freertos.c ****  * @brief Function implementing the UITask thread.
+ 133:Core/Src/freertos.c ****  * @param argument: Not used
+ 134:Core/Src/freertos.c ****  * @retval None
+ 135:Core/Src/freertos.c ****  */
+ 136:Core/Src/freertos.c **** /* USER CODE END Header_StartUITask */
+ 137:Core/Src/freertos.c **** 
+ 138:Core/Src/freertos.c **** /* USER CODE BEGIN Header_canopen_task */
+ 139:Core/Src/freertos.c **** /**
+ 140:Core/Src/freertos.c ****  * @brief Function implementing the canopenTask thread.
+ 141:Core/Src/freertos.c ****  * @param argument: Not used
+ 142:Core/Src/freertos.c ****  * @retval None
+ 143:Core/Src/freertos.c ****  */
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 4
+
+
+ 144:Core/Src/freertos.c **** /* USER CODE END Header_canopen_task */
+ 145:Core/Src/freertos.c **** void canopen_task(void *argument)
+ 146:Core/Src/freertos.c **** {
+  30              		.loc 1 146 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 24
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 146 1 is_stmt 0 view .LVU1
+  35 0000 70B5     		push	{r4, r5, r6, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 16
+  38              		.cfi_offset 4, -16
+  39              		.cfi_offset 5, -12
+  40              		.cfi_offset 6, -8
+  41              		.cfi_offset 14, -4
+  42 0002 86B0     		sub	sp, sp, #24
+  43              	.LCFI1:
+  44              		.cfi_def_cfa_offset 40
+ 147:Core/Src/freertos.c ****   /* USER CODE BEGIN canopen_task */
+ 148:Core/Src/freertos.c ****   CANopenNodeSTM32 canOpenNodeSTM32;
+  45              		.loc 1 148 3 is_stmt 1 view .LVU2
+ 149:Core/Src/freertos.c ****   canOpenNodeSTM32.CANHandle = &hcan;
+  46              		.loc 1 149 3 view .LVU3
+  47              		.loc 1 149 30 is_stmt 0 view .LVU4
+  48 0004 AF4B     		ldr	r3, .L71
+  49 0006 0293     		str	r3, [sp, #8]
+ 150:Core/Src/freertos.c ****   canOpenNodeSTM32.HWInitFunction = MX_CAN_Init;
+  50              		.loc 1 150 3 is_stmt 1 view .LVU5
+  51              		.loc 1 150 35 is_stmt 0 view .LVU6
+  52 0008 AF4B     		ldr	r3, .L71+4
+  53 000a 0393     		str	r3, [sp, #12]
+ 151:Core/Src/freertos.c ****   canOpenNodeSTM32.timerHandle = &htim17;
+  54              		.loc 1 151 3 is_stmt 1 view .LVU7
+  55              		.loc 1 151 32 is_stmt 0 view .LVU8
+  56 000c AF4B     		ldr	r3, .L71+8
+  57 000e 0193     		str	r3, [sp, #4]
+ 152:Core/Src/freertos.c ****   canOpenNodeSTM32.desiredNodeID = (uint8_t)get_NodeID();
+  58              		.loc 1 152 3 is_stmt 1 view .LVU9
+  59              		.loc 1 152 45 is_stmt 0 view .LVU10
+  60 0010 FFF7FEFF 		bl	get_NodeID
+  61              	.LVL1:
+  62              		.loc 1 152 34 view .LVU11
+  63 0014 8DF80000 		strb	r0, [sp]
+ 153:Core/Src/freertos.c ****   canOpenNodeSTM32.baudrate = 125;
+  64              		.loc 1 153 3 is_stmt 1 view .LVU12
+  65              		.loc 1 153 29 is_stmt 0 view .LVU13
+  66 0018 7D23     		movs	r3, #125
+  67 001a 8DF80230 		strb	r3, [sp, #2]
+ 154:Core/Src/freertos.c ****   canopen_app_init(&canOpenNodeSTM32);
+  68              		.loc 1 154 3 is_stmt 1 view .LVU14
+  69 001e 6846     		mov	r0, sp
+  70 0020 FFF7FEFF 		bl	canopen_app_init
+  71              	.LVL2:
+  72 0024 33E0     		b	.L53
+  73              	.LVL3:
+  74              	.L4:
+  75              	.LBB2:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 5
+
+
+  76              	.LBB3:
+  77              	.LBB4:
+ 155:Core/Src/freertos.c ****   /* Infinite loop */
+ 156:Core/Src/freertos.c ****   for (;;)
+ 157:Core/Src/freertos.c ****   {
+ 158:Core/Src/freertos.c ****     canopen_app_process();
+ 159:Core/Src/freertos.c ****     if (OD_PERSIST_COMM.x6001_light_control_data == 0) // breath
+ 160:Core/Src/freertos.c ****     {
+ 161:Core/Src/freertos.c ****       sendPixel(255, 255, 255);
+ 162:Core/Src/freertos.c ****       bool flag = 0;
+ 163:Core/Src/freertos.c ****       for (int j = 10; j < 255; (flag == 0 ? j++ : j--))
+ 164:Core/Src/freertos.c ****       {
+ 165:Core/Src/freertos.c ****         for (int i = 0; i < WS2821_MAX_LED; i++)
+ 166:Core/Src/freertos.c ****         {
+ 167:Core/Src/freertos.c ****           sendPixel(j, j, j);
+  78              		.loc 1 167 11 discriminator 3 view .LVU15
+  79 0026 E8B2     		uxtb	r0, r5
+  80 0028 0246     		mov	r2, r0
+  81 002a 0146     		mov	r1, r0
+  82 002c FFF7FEFF 		bl	sendPixel
+  83              	.LVL4:
+ 165:Core/Src/freertos.c ****         {
+  84              		.loc 1 165 45 discriminator 3 view .LVU16
+ 165:Core/Src/freertos.c ****         {
+  85              		.loc 1 165 46 is_stmt 0 discriminator 3 view .LVU17
+  86 0030 0134     		adds	r4, r4, #1
+  87              	.LVL5:
+  88              	.L10:
+ 165:Core/Src/freertos.c ****         {
+  89              		.loc 1 165 25 is_stmt 1 discriminator 1 view .LVU18
+ 165:Core/Src/freertos.c ****         {
+  90              		.loc 1 165 9 is_stmt 0 discriminator 1 view .LVU19
+  91 0032 B4F57A7F 		cmp	r4, #1000
+  92 0036 F6DB     		blt	.L4
+  93              	.LBE4:
+ 168:Core/Src/freertos.c ****         }
+ 169:Core/Src/freertos.c ****         ws2812_reset();
+  94              		.loc 1 169 9 is_stmt 1 view .LVU20
+  95 0038 FFF7FEFF 		bl	ws2812_reset
+  96              	.LVL6:
+ 170:Core/Src/freertos.c ****         osDelay(20);
+  97              		.loc 1 170 9 view .LVU21
+  98 003c 1420     		movs	r0, #20
+  99 003e FFF7FEFF 		bl	osDelay
+ 100              	.LVL7:
+ 171:Core/Src/freertos.c ****         if (j == 254)
+ 101              		.loc 1 171 9 view .LVU22
+ 102              		.loc 1 171 12 is_stmt 0 view .LVU23
+ 103 0042 FE2D     		cmp	r5, #254
+ 104 0044 0AD0     		beq	.L54
+ 172:Core/Src/freertos.c ****         {
+ 173:Core/Src/freertos.c ****           flag = 1;
+ 174:Core/Src/freertos.c ****         }
+ 175:Core/Src/freertos.c ****         else if (j == 10)
+ 105              		.loc 1 175 14 is_stmt 1 view .LVU24
+ 106              		.loc 1 175 17 is_stmt 0 view .LVU25
+ 107 0046 0A2D     		cmp	r5, #10
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 6
+
+
+ 108 0048 0AD0     		beq	.L68
+ 109              	.LVL8:
+ 110              	.L5:
+ 176:Core/Src/freertos.c ****         {
+ 177:Core/Src/freertos.c ****           flag = 0;
+ 178:Core/Src/freertos.c ****         }
+ 179:Core/Src/freertos.c ****         canopen_app_process();
+ 111              		.loc 1 179 9 is_stmt 1 view .LVU26
+ 112 004a FFF7FEFF 		bl	canopen_app_process
+ 113              	.LVL9:
+ 180:Core/Src/freertos.c ****         if (OD_PERSIST_COMM.x6001_light_control_data != 0)
+ 114              		.loc 1 180 9 view .LVU27
+ 115              		.loc 1 180 28 is_stmt 0 view .LVU28
+ 116 004e A04B     		ldr	r3, .L71+12
+ 117 0050 B3F89A30 		ldrh	r3, [r3, #154]
+ 118              		.loc 1 180 12 view .LVU29
+ 119 0054 33B9     		cbnz	r3, .L69
+ 163:Core/Src/freertos.c ****       {
+ 120              		.loc 1 163 33 is_stmt 1 view .LVU30
+ 163:Core/Src/freertos.c ****       {
+ 121              		.loc 1 163 50 is_stmt 0 view .LVU31
+ 122 0056 5EB9     		cbnz	r6, .L8
+ 163:Core/Src/freertos.c ****       {
+ 123              		.loc 1 163 47 discriminator 2 view .LVU32
+ 124 0058 0135     		adds	r5, r5, #1
+ 125              	.LVL10:
+ 163:Core/Src/freertos.c ****       {
+ 126              		.loc 1 163 47 discriminator 2 view .LVU33
+ 127 005a 26E0     		b	.L3
+ 128              	.L54:
+ 173:Core/Src/freertos.c ****         }
+ 129              		.loc 1 173 16 view .LVU34
+ 130 005c 0126     		movs	r6, #1
+ 131              	.LVL11:
+ 173:Core/Src/freertos.c ****         }
+ 132              		.loc 1 173 16 view .LVU35
+ 133 005e F4E7     		b	.L5
+ 134              	.LVL12:
+ 135              	.L68:
+ 177:Core/Src/freertos.c ****         }
+ 136              		.loc 1 177 16 view .LVU36
+ 137 0060 0026     		movs	r6, #0
+ 138              	.LVL13:
+ 177:Core/Src/freertos.c ****         }
+ 139              		.loc 1 177 16 view .LVU37
+ 140 0062 F2E7     		b	.L5
+ 141              	.LVL14:
+ 142              	.L69:
+ 181:Core/Src/freertos.c ****         {
+ 182:Core/Src/freertos.c ****           clear();
+ 143              		.loc 1 182 11 is_stmt 1 view .LVU38
+ 144 0064 FFF7FEFF 		bl	clear
+ 145              	.LVL15:
+ 183:Core/Src/freertos.c ****           osDelay(50);
+ 146              		.loc 1 183 11 view .LVU39
+ 147 0068 3220     		movs	r0, #50
+ 148 006a FFF7FEFF 		bl	osDelay
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 7
+
+
+ 149              	.LVL16:
+ 184:Core/Src/freertos.c ****           break;
+ 150              		.loc 1 184 11 view .LVU40
+ 151 006e 0BE0     		b	.L7
+ 152              	.L8:
+ 163:Core/Src/freertos.c ****       {
+ 153              		.loc 1 163 53 is_stmt 0 discriminator 3 view .LVU41
+ 154 0070 013D     		subs	r5, r5, #1
+ 155              	.LVL17:
+ 163:Core/Src/freertos.c ****       {
+ 156              		.loc 1 163 53 discriminator 3 view .LVU42
+ 157 0072 1AE0     		b	.L3
+ 158              	.LVL18:
+ 159              	.L2:
+ 163:Core/Src/freertos.c ****       {
+ 160              		.loc 1 163 53 discriminator 3 view .LVU43
+ 161              	.LBE3:
+ 162              	.LBE2:
+ 185:Core/Src/freertos.c ****         }
+ 186:Core/Src/freertos.c ****       }
+ 187:Core/Src/freertos.c ****     }
+ 188:Core/Src/freertos.c **** 
+ 189:Core/Src/freertos.c ****     else if ((OD_PERSIST_COMM.x6001_light_control_data >= 10 && OD_PERSIST_COMM.x6001_light_control
+ 163              		.loc 1 189 10 is_stmt 1 view .LVU44
+ 164              		.loc 1 189 62 is_stmt 0 view .LVU45
+ 165 0074 A3F10A02 		sub	r2, r3, #10
+ 166 0078 92B2     		uxth	r2, r2
+ 167              		.loc 1 189 13 view .LVU46
+ 168 007a 022A     		cmp	r2, #2
+ 169 007c 19D9     		bls	.L11
+ 170              		.loc 1 189 162 discriminator 1 view .LVU47
+ 171 007e A3F12502 		sub	r2, r3, #37
+ 172 0082 92B2     		uxth	r2, r2
+ 173              		.loc 1 189 112 discriminator 1 view .LVU48
+ 174 0084 062A     		cmp	r2, #6
+ 175 0086 14D9     		bls	.L11
+ 176              	.L7:
+ 190:Core/Src/freertos.c ****     {
+ 191:Core/Src/freertos.c ****       switch (OD_PERSIST_COMM.x6001_light_control_data)
+ 192:Core/Src/freertos.c ****       {
+ 193:Core/Src/freertos.c ****       case 37:
+ 194:Core/Src/freertos.c ****         for (int i = 0; i < 100; i++)
+ 195:Core/Src/freertos.c ****         {
+ 196:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 197:Core/Src/freertos.c ****         }
+ 198:Core/Src/freertos.c ****         ws2812_reset();
+ 199:Core/Src/freertos.c ****         break;
+ 200:Core/Src/freertos.c ****       case 38:
+ 201:Core/Src/freertos.c ****         for (int i = 0; i < 45; i++)
+ 202:Core/Src/freertos.c ****         {
+ 203:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 204:Core/Src/freertos.c ****         }
+ 205:Core/Src/freertos.c ****         for (int i = 0; i < 105; i++)
+ 206:Core/Src/freertos.c ****         {
+ 207:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 208:Core/Src/freertos.c ****         }
+ 209:Core/Src/freertos.c ****         ws2812_reset();
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 8
+
+
+ 210:Core/Src/freertos.c ****         break;
+ 211:Core/Src/freertos.c ****       case 39:
+ 212:Core/Src/freertos.c ****         for (int i = 0; i < 90; i++)
+ 213:Core/Src/freertos.c ****         {
+ 214:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 215:Core/Src/freertos.c ****         }
+ 216:Core/Src/freertos.c ****         for (int i = 0; i < 100; i++)
+ 217:Core/Src/freertos.c ****         {
+ 218:Core/Src/freertos.c ****           sendPixel(255,255,255);
+ 219:Core/Src/freertos.c ****         }
+ 220:Core/Src/freertos.c ****         ws2812_reset();
+ 221:Core/Src/freertos.c ****         break;
+ 222:Core/Src/freertos.c ****       case 40:
+ 223:Core/Src/freertos.c ****         for (int i = 0; i < 140; i++)
+ 224:Core/Src/freertos.c ****         {
+ 225:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 226:Core/Src/freertos.c ****         }
+ 227:Core/Src/freertos.c ****         for (int i = 0; i < 100; i++)
+ 228:Core/Src/freertos.c ****         {
+ 229:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 230:Core/Src/freertos.c ****         }
+ 231:Core/Src/freertos.c ****         ws2812_reset();
+ 232:Core/Src/freertos.c ****         break;
+ 233:Core/Src/freertos.c ****       case 41:
+ 234:Core/Src/freertos.c ****         for (int i = 0; i < 185; i++)
+ 235:Core/Src/freertos.c ****         {
+ 236:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 237:Core/Src/freertos.c ****         }
+ 238:Core/Src/freertos.c ****         for (int i = 0; i < 100; i++)
+ 239:Core/Src/freertos.c ****         {
+ 240:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 241:Core/Src/freertos.c ****         }
+ 242:Core/Src/freertos.c ****         ws2812_reset();
+ 243:Core/Src/freertos.c ****         break;
+ 244:Core/Src/freertos.c ****       case 42:
+ 245:Core/Src/freertos.c ****         for (int i = 0; i < 230; i++)
+ 246:Core/Src/freertos.c ****         {
+ 247:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 248:Core/Src/freertos.c ****         }
+ 249:Core/Src/freertos.c ****         for (int i = 0; i < 100; i++)
+ 250:Core/Src/freertos.c ****         {
+ 251:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 252:Core/Src/freertos.c ****         }
+ 253:Core/Src/freertos.c ****         ws2812_reset();
+ 254:Core/Src/freertos.c ****         break;
+ 255:Core/Src/freertos.c ****       case 43:
+ 256:Core/Src/freertos.c ****         for (int i = 0; i < 285; i++)
+ 257:Core/Src/freertos.c ****         {
+ 258:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 259:Core/Src/freertos.c ****         }
+ 260:Core/Src/freertos.c ****         for (int i = 0; i < 100; i++)
+ 261:Core/Src/freertos.c ****         {
+ 262:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 263:Core/Src/freertos.c ****         }
+ 264:Core/Src/freertos.c ****         ws2812_reset();
+ 265:Core/Src/freertos.c ****         break;
+ 266:Core/Src/freertos.c ****       case 10:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 9
+
+
+ 267:Core/Src/freertos.c ****         for (int i = 0; i < 325; i++)
+ 268:Core/Src/freertos.c ****         {
+ 269:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 270:Core/Src/freertos.c ****         }
+ 271:Core/Src/freertos.c ****         for (int i = 0; i < 115; i++)
+ 272:Core/Src/freertos.c ****         {
+ 273:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 274:Core/Src/freertos.c ****         }
+ 275:Core/Src/freertos.c ****         ws2812_reset();
+ 276:Core/Src/freertos.c ****         break;
+ 277:Core/Src/freertos.c ****       case 11:
+ 278:Core/Src/freertos.c ****         for (int i = 0; i < 375; i++)
+ 279:Core/Src/freertos.c ****         {
+ 280:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 281:Core/Src/freertos.c ****         }
+ 282:Core/Src/freertos.c ****         for (int i = 0; i < 105; i++)
+ 283:Core/Src/freertos.c ****         {
+ 284:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 285:Core/Src/freertos.c ****         }
+ 286:Core/Src/freertos.c ****         ws2812_reset();
+ 287:Core/Src/freertos.c ****         break;
+ 288:Core/Src/freertos.c ****       case 12:
+ 289:Core/Src/freertos.c ****         for (int i = 0; i < 415; i++)
+ 290:Core/Src/freertos.c ****         {
+ 291:Core/Src/freertos.c ****           sendPixel(0, 0, 0);
+ 292:Core/Src/freertos.c ****         }
+ 293:Core/Src/freertos.c ****         for (int i = 0; i < 150; i++)
+ 294:Core/Src/freertos.c ****         {
+ 295:Core/Src/freertos.c ****           sendPixel(255, 255, 255);
+ 296:Core/Src/freertos.c ****         }
+ 297:Core/Src/freertos.c ****         ws2812_reset();
+ 298:Core/Src/freertos.c ****         break;
+ 299:Core/Src/freertos.c ****       }
+ 300:Core/Src/freertos.c ****       
+ 301:Core/Src/freertos.c ****       for (;;)
+ 302:Core/Src/freertos.c ****       {
+ 303:Core/Src/freertos.c ****         canopen_app_process();
+ 304:Core/Src/freertos.c ****         if (OD_PERSIST_COMM.x6001_light_control_data == 0)
+ 305:Core/Src/freertos.c ****         {
+ 306:Core/Src/freertos.c ****           break;
+ 307:Core/Src/freertos.c ****         }
+ 308:Core/Src/freertos.c ****         osDelay(50);
+ 309:Core/Src/freertos.c ****       }
+ 310:Core/Src/freertos.c ****     }
+ 311:Core/Src/freertos.c ****     vTaskDelay(pdMS_TO_TICKS(1));
+ 177              		.loc 1 311 5 is_stmt 1 view .LVU49
+ 178 0088 0120     		movs	r0, #1
+ 179 008a FFF7FEFF 		bl	vTaskDelay
+ 180              	.LVL19:
+ 156:Core/Src/freertos.c ****   {
+ 181              		.loc 1 156 9 view .LVU50
+ 182              	.L53:
+ 156:Core/Src/freertos.c ****   {
+ 183              		.loc 1 156 3 view .LVU51
+ 158:Core/Src/freertos.c ****     if (OD_PERSIST_COMM.x6001_light_control_data == 0) // breath
+ 184              		.loc 1 158 5 view .LVU52
+ 185 008e FFF7FEFF 		bl	canopen_app_process
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 10
+
+
+ 186              	.LVL20:
+ 159:Core/Src/freertos.c ****     {
+ 187              		.loc 1 159 5 view .LVU53
+ 159:Core/Src/freertos.c ****     {
+ 188              		.loc 1 159 24 is_stmt 0 view .LVU54
+ 189 0092 8F4B     		ldr	r3, .L71+12
+ 190 0094 B3F89A30 		ldrh	r3, [r3, #154]
+ 159:Core/Src/freertos.c ****     {
+ 191              		.loc 1 159 8 view .LVU55
+ 192 0098 002B     		cmp	r3, #0
+ 193 009a EBD1     		bne	.L2
+ 194              	.LBB8:
+ 161:Core/Src/freertos.c ****       bool flag = 0;
+ 195              		.loc 1 161 7 is_stmt 1 view .LVU56
+ 196 009c FF22     		movs	r2, #255
+ 197 009e 1146     		mov	r1, r2
+ 198 00a0 1046     		mov	r0, r2
+ 199 00a2 FFF7FEFF 		bl	sendPixel
+ 200              	.LVL21:
+ 162:Core/Src/freertos.c ****       for (int j = 10; j < 255; (flag == 0 ? j++ : j--))
+ 201              		.loc 1 162 7 view .LVU57
+ 163:Core/Src/freertos.c ****       {
+ 202              		.loc 1 163 7 view .LVU58
+ 203              	.LBB6:
+ 163:Core/Src/freertos.c ****       {
+ 204              		.loc 1 163 12 view .LVU59
+ 163:Core/Src/freertos.c ****       {
+ 205              		.loc 1 163 16 is_stmt 0 view .LVU60
+ 206 00a6 0A25     		movs	r5, #10
+ 207              	.LBE6:
+ 162:Core/Src/freertos.c ****       for (int j = 10; j < 255; (flag == 0 ? j++ : j--))
+ 208              		.loc 1 162 12 view .LVU61
+ 209 00a8 0026     		movs	r6, #0
+ 210              	.LVL22:
+ 211              	.L3:
+ 212              	.LBB7:
+ 163:Core/Src/freertos.c ****       {
+ 213              		.loc 1 163 24 is_stmt 1 discriminator 5 view .LVU62
+ 163:Core/Src/freertos.c ****       {
+ 214              		.loc 1 163 7 is_stmt 0 discriminator 5 view .LVU63
+ 215 00aa FE2D     		cmp	r5, #254
+ 216 00ac ECDC     		bgt	.L7
+ 217              	.LBB5:
+ 165:Core/Src/freertos.c ****         {
+ 218              		.loc 1 165 18 view .LVU64
+ 219 00ae 0024     		movs	r4, #0
+ 220 00b0 BFE7     		b	.L10
+ 221              	.LVL23:
+ 222              	.L11:
+ 165:Core/Src/freertos.c ****         {
+ 223              		.loc 1 165 18 view .LVU65
+ 224              	.LBE5:
+ 225              	.LBE7:
+ 226              	.LBE8:
+ 191:Core/Src/freertos.c ****       {
+ 227              		.loc 1 191 7 is_stmt 1 view .LVU66
+ 228 00b2 0A3B     		subs	r3, r3, #10
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 11
+
+
+ 229 00b4 212B     		cmp	r3, #33
+ 230 00b6 00F21081 		bhi	.L52
+ 231 00ba DFE813F0 		tbh	[pc, r3, lsl #1]
+ 232              	.L14:
+ 233 00be C500     		.2byte	(.L57-.L14)/2
+ 234 00c0 DD00     		.2byte	(.L58-.L14)/2
+ 235 00c2 F500     		.2byte	(.L59-.L14)/2
+ 236 00c4 0E01     		.2byte	(.L52-.L14)/2
+ 237 00c6 0E01     		.2byte	(.L52-.L14)/2
+ 238 00c8 0E01     		.2byte	(.L52-.L14)/2
+ 239 00ca 0E01     		.2byte	(.L52-.L14)/2
+ 240 00cc 0E01     		.2byte	(.L52-.L14)/2
+ 241 00ce 0E01     		.2byte	(.L52-.L14)/2
+ 242 00d0 0E01     		.2byte	(.L52-.L14)/2
+ 243 00d2 0E01     		.2byte	(.L52-.L14)/2
+ 244 00d4 0E01     		.2byte	(.L52-.L14)/2
+ 245 00d6 0E01     		.2byte	(.L52-.L14)/2
+ 246 00d8 0E01     		.2byte	(.L52-.L14)/2
+ 247 00da 0E01     		.2byte	(.L52-.L14)/2
+ 248 00dc 0E01     		.2byte	(.L52-.L14)/2
+ 249 00de 0E01     		.2byte	(.L52-.L14)/2
+ 250 00e0 0E01     		.2byte	(.L52-.L14)/2
+ 251 00e2 0E01     		.2byte	(.L52-.L14)/2
+ 252 00e4 0E01     		.2byte	(.L52-.L14)/2
+ 253 00e6 0E01     		.2byte	(.L52-.L14)/2
+ 254 00e8 0E01     		.2byte	(.L52-.L14)/2
+ 255 00ea 0E01     		.2byte	(.L52-.L14)/2
+ 256 00ec 0E01     		.2byte	(.L52-.L14)/2
+ 257 00ee 0E01     		.2byte	(.L52-.L14)/2
+ 258 00f0 0E01     		.2byte	(.L52-.L14)/2
+ 259 00f2 0E01     		.2byte	(.L52-.L14)/2
+ 260 00f4 2D00     		.2byte	(.L60-.L14)/2
+ 261 00f6 3900     		.2byte	(.L61-.L14)/2
+ 262 00f8 5000     		.2byte	(.L62-.L14)/2
+ 263 00fa 6700     		.2byte	(.L63-.L14)/2
+ 264 00fc 7E00     		.2byte	(.L64-.L14)/2
+ 265 00fe 9500     		.2byte	(.L65-.L14)/2
+ 266 0100 AD00     		.2byte	(.L66-.L14)/2
+ 267              	.LVL24:
+ 268              		.p2align 1
+ 269              	.L24:
+ 270              	.LBB9:
+ 196:Core/Src/freertos.c ****         }
+ 271              		.loc 1 196 11 discriminator 3 view .LVU67
+ 272 0102 FF22     		movs	r2, #255
+ 273 0104 1146     		mov	r1, r2
+ 274 0106 1046     		mov	r0, r2
+ 275 0108 FFF7FEFF 		bl	sendPixel
+ 276              	.LVL25:
+ 194:Core/Src/freertos.c ****         {
+ 277              		.loc 1 194 34 discriminator 3 view .LVU68
+ 194:Core/Src/freertos.c ****         {
+ 278              		.loc 1 194 35 is_stmt 0 discriminator 3 view .LVU69
+ 279 010c 0134     		adds	r4, r4, #1
+ 280              	.LVL26:
+ 281              	.L20:
+ 194:Core/Src/freertos.c ****         {
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 12
+
+
+ 282              		.loc 1 194 25 is_stmt 1 discriminator 1 view .LVU70
+ 194:Core/Src/freertos.c ****         {
+ 283              		.loc 1 194 9 is_stmt 0 discriminator 1 view .LVU71
+ 284 010e 632C     		cmp	r4, #99
+ 285 0110 F7DD     		ble	.L24
+ 286              	.LBE9:
+ 198:Core/Src/freertos.c ****         break;
+ 287              		.loc 1 198 9 is_stmt 1 view .LVU72
+ 288 0112 FFF7FEFF 		bl	ws2812_reset
+ 289              	.LVL27:
+ 199:Core/Src/freertos.c ****       case 38:
+ 290              		.loc 1 199 9 view .LVU73
+ 291 0116 E0E0     		b	.L52
+ 292              	.LVL28:
+ 293              	.L60:
+ 191:Core/Src/freertos.c ****       {
+ 294              		.loc 1 191 7 is_stmt 0 view .LVU74
+ 295 0118 0024     		movs	r4, #0
+ 296 011a F8E7     		b	.L20
+ 297              	.LVL29:
+ 298              	.L25:
+ 299              	.LBB10:
+ 203:Core/Src/freertos.c ****         }
+ 300              		.loc 1 203 11 is_stmt 1 discriminator 3 view .LVU75
+ 301 011c 0022     		movs	r2, #0
+ 302 011e 1146     		mov	r1, r2
+ 303 0120 1046     		mov	r0, r2
+ 304 0122 FFF7FEFF 		bl	sendPixel
+ 305              	.LVL30:
+ 201:Core/Src/freertos.c ****         {
+ 306              		.loc 1 201 33 discriminator 3 view .LVU76
+ 201:Core/Src/freertos.c ****         {
+ 307              		.loc 1 201 34 is_stmt 0 discriminator 3 view .LVU77
+ 308 0126 0134     		adds	r4, r4, #1
+ 309              	.LVL31:
+ 310              	.L19:
+ 201:Core/Src/freertos.c ****         {
+ 311              		.loc 1 201 25 is_stmt 1 discriminator 1 view .LVU78
+ 201:Core/Src/freertos.c ****         {
+ 312              		.loc 1 201 9 is_stmt 0 discriminator 1 view .LVU79
+ 313 0128 2C2C     		cmp	r4, #44
+ 314 012a F7DD     		ble	.L25
+ 315              	.LBE10:
+ 316              	.LBB11:
+ 205:Core/Src/freertos.c ****         {
+ 317              		.loc 1 205 18 view .LVU80
+ 318 012c 0024     		movs	r4, #0
+ 319              	.LVL32:
+ 205:Core/Src/freertos.c ****         {
+ 320              		.loc 1 205 18 view .LVU81
+ 321 012e 07E0     		b	.L26
+ 322              	.L61:
+ 205:Core/Src/freertos.c ****         {
+ 323              		.loc 1 205 18 view .LVU82
+ 324              	.LBE11:
+ 191:Core/Src/freertos.c ****       {
+ 325              		.loc 1 191 7 view .LVU83
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 13
+
+
+ 326 0130 0024     		movs	r4, #0
+ 327 0132 F9E7     		b	.L19
+ 328              	.LVL33:
+ 329              	.L27:
+ 330              	.LBB12:
+ 207:Core/Src/freertos.c ****         }
+ 331              		.loc 1 207 11 is_stmt 1 discriminator 3 view .LVU84
+ 332 0134 FF22     		movs	r2, #255
+ 333 0136 1146     		mov	r1, r2
+ 334 0138 1046     		mov	r0, r2
+ 335 013a FFF7FEFF 		bl	sendPixel
+ 336              	.LVL34:
+ 205:Core/Src/freertos.c ****         {
+ 337              		.loc 1 205 34 discriminator 3 view .LVU85
+ 205:Core/Src/freertos.c ****         {
+ 338              		.loc 1 205 35 is_stmt 0 discriminator 3 view .LVU86
+ 339 013e 0134     		adds	r4, r4, #1
+ 340              	.LVL35:
+ 341              	.L26:
+ 205:Core/Src/freertos.c ****         {
+ 342              		.loc 1 205 25 is_stmt 1 discriminator 1 view .LVU87
+ 205:Core/Src/freertos.c ****         {
+ 343              		.loc 1 205 9 is_stmt 0 discriminator 1 view .LVU88
+ 344 0140 682C     		cmp	r4, #104
+ 345 0142 F7DD     		ble	.L27
+ 346              	.LBE12:
+ 209:Core/Src/freertos.c ****         break;
+ 347              		.loc 1 209 9 is_stmt 1 view .LVU89
+ 348 0144 FFF7FEFF 		bl	ws2812_reset
+ 349              	.LVL36:
+ 210:Core/Src/freertos.c ****       case 39:
+ 350              		.loc 1 210 9 view .LVU90
+ 351 0148 C7E0     		b	.L52
+ 352              	.LVL37:
+ 353              	.L28:
+ 354              	.LBB13:
+ 214:Core/Src/freertos.c ****         }
+ 355              		.loc 1 214 11 discriminator 3 view .LVU91
+ 356 014a 0022     		movs	r2, #0
+ 357 014c 1146     		mov	r1, r2
+ 358 014e 1046     		mov	r0, r2
+ 359 0150 FFF7FEFF 		bl	sendPixel
+ 360              	.LVL38:
+ 212:Core/Src/freertos.c ****         {
+ 361              		.loc 1 212 33 discriminator 3 view .LVU92
+ 212:Core/Src/freertos.c ****         {
+ 362              		.loc 1 212 34 is_stmt 0 discriminator 3 view .LVU93
+ 363 0154 0134     		adds	r4, r4, #1
+ 364              	.LVL39:
+ 365              	.L18:
+ 212:Core/Src/freertos.c ****         {
+ 366              		.loc 1 212 25 is_stmt 1 discriminator 1 view .LVU94
+ 212:Core/Src/freertos.c ****         {
+ 367              		.loc 1 212 9 is_stmt 0 discriminator 1 view .LVU95
+ 368 0156 592C     		cmp	r4, #89
+ 369 0158 F7DD     		ble	.L28
+ 370              	.LBE13:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 14
+
+
+ 371              	.LBB14:
+ 216:Core/Src/freertos.c ****         {
+ 372              		.loc 1 216 18 view .LVU96
+ 373 015a 0024     		movs	r4, #0
+ 374              	.LVL40:
+ 216:Core/Src/freertos.c ****         {
+ 375              		.loc 1 216 18 view .LVU97
+ 376 015c 07E0     		b	.L29
+ 377              	.L62:
+ 216:Core/Src/freertos.c ****         {
+ 378              		.loc 1 216 18 view .LVU98
+ 379              	.LBE14:
+ 191:Core/Src/freertos.c ****       {
+ 380              		.loc 1 191 7 view .LVU99
+ 381 015e 0024     		movs	r4, #0
+ 382 0160 F9E7     		b	.L18
+ 383              	.LVL41:
+ 384              	.L30:
+ 385              	.LBB15:
+ 218:Core/Src/freertos.c ****         }
+ 386              		.loc 1 218 11 is_stmt 1 discriminator 3 view .LVU100
+ 387 0162 FF22     		movs	r2, #255
+ 388 0164 1146     		mov	r1, r2
+ 389 0166 1046     		mov	r0, r2
+ 390 0168 FFF7FEFF 		bl	sendPixel
+ 391              	.LVL42:
+ 216:Core/Src/freertos.c ****         {
+ 392              		.loc 1 216 34 discriminator 3 view .LVU101
+ 216:Core/Src/freertos.c ****         {
+ 393              		.loc 1 216 35 is_stmt 0 discriminator 3 view .LVU102
+ 394 016c 0134     		adds	r4, r4, #1
+ 395              	.LVL43:
+ 396              	.L29:
+ 216:Core/Src/freertos.c ****         {
+ 397              		.loc 1 216 25 is_stmt 1 discriminator 1 view .LVU103
+ 216:Core/Src/freertos.c ****         {
+ 398              		.loc 1 216 9 is_stmt 0 discriminator 1 view .LVU104
+ 399 016e 632C     		cmp	r4, #99
+ 400 0170 F7DD     		ble	.L30
+ 401              	.LBE15:
+ 220:Core/Src/freertos.c ****         break;
+ 402              		.loc 1 220 9 is_stmt 1 view .LVU105
+ 403 0172 FFF7FEFF 		bl	ws2812_reset
+ 404              	.LVL44:
+ 221:Core/Src/freertos.c ****       case 40:
+ 405              		.loc 1 221 9 view .LVU106
+ 406 0176 B0E0     		b	.L52
+ 407              	.LVL45:
+ 408              	.L31:
+ 409              	.LBB16:
+ 225:Core/Src/freertos.c ****         }
+ 410              		.loc 1 225 11 discriminator 3 view .LVU107
+ 411 0178 0022     		movs	r2, #0
+ 412 017a 1146     		mov	r1, r2
+ 413 017c 1046     		mov	r0, r2
+ 414 017e FFF7FEFF 		bl	sendPixel
+ 415              	.LVL46:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 15
+
+
+ 223:Core/Src/freertos.c ****         {
+ 416              		.loc 1 223 34 discriminator 3 view .LVU108
+ 223:Core/Src/freertos.c ****         {
+ 417              		.loc 1 223 35 is_stmt 0 discriminator 3 view .LVU109
+ 418 0182 0134     		adds	r4, r4, #1
+ 419              	.LVL47:
+ 420              	.L17:
+ 223:Core/Src/freertos.c ****         {
+ 421              		.loc 1 223 25 is_stmt 1 discriminator 1 view .LVU110
+ 223:Core/Src/freertos.c ****         {
+ 422              		.loc 1 223 9 is_stmt 0 discriminator 1 view .LVU111
+ 423 0184 8B2C     		cmp	r4, #139
+ 424 0186 F7DD     		ble	.L31
+ 425              	.LBE16:
+ 426              	.LBB17:
+ 227:Core/Src/freertos.c ****         {
+ 427              		.loc 1 227 18 view .LVU112
+ 428 0188 0024     		movs	r4, #0
+ 429              	.LVL48:
+ 227:Core/Src/freertos.c ****         {
+ 430              		.loc 1 227 18 view .LVU113
+ 431 018a 07E0     		b	.L32
+ 432              	.L63:
+ 227:Core/Src/freertos.c ****         {
+ 433              		.loc 1 227 18 view .LVU114
+ 434              	.LBE17:
+ 191:Core/Src/freertos.c ****       {
+ 435              		.loc 1 191 7 view .LVU115
+ 436 018c 0024     		movs	r4, #0
+ 437 018e F9E7     		b	.L17
+ 438              	.LVL49:
+ 439              	.L33:
+ 440              	.LBB18:
+ 229:Core/Src/freertos.c ****         }
+ 441              		.loc 1 229 11 is_stmt 1 discriminator 3 view .LVU116
+ 442 0190 FF22     		movs	r2, #255
+ 443 0192 1146     		mov	r1, r2
+ 444 0194 1046     		mov	r0, r2
+ 445 0196 FFF7FEFF 		bl	sendPixel
+ 446              	.LVL50:
+ 227:Core/Src/freertos.c ****         {
+ 447              		.loc 1 227 34 discriminator 3 view .LVU117
+ 227:Core/Src/freertos.c ****         {
+ 448              		.loc 1 227 35 is_stmt 0 discriminator 3 view .LVU118
+ 449 019a 0134     		adds	r4, r4, #1
+ 450              	.LVL51:
+ 451              	.L32:
+ 227:Core/Src/freertos.c ****         {
+ 452              		.loc 1 227 25 is_stmt 1 discriminator 1 view .LVU119
+ 227:Core/Src/freertos.c ****         {
+ 453              		.loc 1 227 9 is_stmt 0 discriminator 1 view .LVU120
+ 454 019c 632C     		cmp	r4, #99
+ 455 019e F7DD     		ble	.L33
+ 456              	.LBE18:
+ 231:Core/Src/freertos.c ****         break;
+ 457              		.loc 1 231 9 is_stmt 1 view .LVU121
+ 458 01a0 FFF7FEFF 		bl	ws2812_reset
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 16
+
+
+ 459              	.LVL52:
+ 232:Core/Src/freertos.c ****       case 41:
+ 460              		.loc 1 232 9 view .LVU122
+ 461 01a4 99E0     		b	.L52
+ 462              	.LVL53:
+ 463              	.L34:
+ 464              	.LBB19:
+ 236:Core/Src/freertos.c ****         }
+ 465              		.loc 1 236 11 discriminator 3 view .LVU123
+ 466 01a6 0022     		movs	r2, #0
+ 467 01a8 1146     		mov	r1, r2
+ 468 01aa 1046     		mov	r0, r2
+ 469 01ac FFF7FEFF 		bl	sendPixel
+ 470              	.LVL54:
+ 234:Core/Src/freertos.c ****         {
+ 471              		.loc 1 234 34 discriminator 3 view .LVU124
+ 234:Core/Src/freertos.c ****         {
+ 472              		.loc 1 234 35 is_stmt 0 discriminator 3 view .LVU125
+ 473 01b0 0134     		adds	r4, r4, #1
+ 474              	.LVL55:
+ 475              	.L16:
+ 234:Core/Src/freertos.c ****         {
+ 476              		.loc 1 234 25 is_stmt 1 discriminator 1 view .LVU126
+ 234:Core/Src/freertos.c ****         {
+ 477              		.loc 1 234 9 is_stmt 0 discriminator 1 view .LVU127
+ 478 01b2 B82C     		cmp	r4, #184
+ 479 01b4 F7DD     		ble	.L34
+ 480              	.LBE19:
+ 481              	.LBB20:
+ 238:Core/Src/freertos.c ****         {
+ 482              		.loc 1 238 18 view .LVU128
+ 483 01b6 0024     		movs	r4, #0
+ 484              	.LVL56:
+ 238:Core/Src/freertos.c ****         {
+ 485              		.loc 1 238 18 view .LVU129
+ 486 01b8 07E0     		b	.L35
+ 487              	.L64:
+ 238:Core/Src/freertos.c ****         {
+ 488              		.loc 1 238 18 view .LVU130
+ 489              	.LBE20:
+ 191:Core/Src/freertos.c ****       {
+ 490              		.loc 1 191 7 view .LVU131
+ 491 01ba 0024     		movs	r4, #0
+ 492 01bc F9E7     		b	.L16
+ 493              	.LVL57:
+ 494              	.L36:
+ 495              	.LBB21:
+ 240:Core/Src/freertos.c ****         }
+ 496              		.loc 1 240 11 is_stmt 1 discriminator 3 view .LVU132
+ 497 01be FF22     		movs	r2, #255
+ 498 01c0 1146     		mov	r1, r2
+ 499 01c2 1046     		mov	r0, r2
+ 500 01c4 FFF7FEFF 		bl	sendPixel
+ 501              	.LVL58:
+ 238:Core/Src/freertos.c ****         {
+ 502              		.loc 1 238 34 discriminator 3 view .LVU133
+ 238:Core/Src/freertos.c ****         {
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 17
+
+
+ 503              		.loc 1 238 35 is_stmt 0 discriminator 3 view .LVU134
+ 504 01c8 0134     		adds	r4, r4, #1
+ 505              	.LVL59:
+ 506              	.L35:
+ 238:Core/Src/freertos.c ****         {
+ 507              		.loc 1 238 25 is_stmt 1 discriminator 1 view .LVU135
+ 238:Core/Src/freertos.c ****         {
+ 508              		.loc 1 238 9 is_stmt 0 discriminator 1 view .LVU136
+ 509 01ca 632C     		cmp	r4, #99
+ 510 01cc F7DD     		ble	.L36
+ 511              	.LBE21:
+ 242:Core/Src/freertos.c ****         break;
+ 512              		.loc 1 242 9 is_stmt 1 view .LVU137
+ 513 01ce FFF7FEFF 		bl	ws2812_reset
+ 514              	.LVL60:
+ 243:Core/Src/freertos.c ****       case 42:
+ 515              		.loc 1 243 9 view .LVU138
+ 516 01d2 82E0     		b	.L52
+ 517              	.LVL61:
+ 518              	.L37:
+ 519              	.LBB22:
+ 247:Core/Src/freertos.c ****         }
+ 520              		.loc 1 247 11 discriminator 3 view .LVU139
+ 521 01d4 0022     		movs	r2, #0
+ 522 01d6 1146     		mov	r1, r2
+ 523 01d8 1046     		mov	r0, r2
+ 524 01da FFF7FEFF 		bl	sendPixel
+ 525              	.LVL62:
+ 245:Core/Src/freertos.c ****         {
+ 526              		.loc 1 245 34 discriminator 3 view .LVU140
+ 245:Core/Src/freertos.c ****         {
+ 527              		.loc 1 245 35 is_stmt 0 discriminator 3 view .LVU141
+ 528 01de 0134     		adds	r4, r4, #1
+ 529              	.LVL63:
+ 530              	.L15:
+ 245:Core/Src/freertos.c ****         {
+ 531              		.loc 1 245 25 is_stmt 1 discriminator 1 view .LVU142
+ 245:Core/Src/freertos.c ****         {
+ 532              		.loc 1 245 9 is_stmt 0 discriminator 1 view .LVU143
+ 533 01e0 E52C     		cmp	r4, #229
+ 534 01e2 F7DD     		ble	.L37
+ 535              	.LBE22:
+ 536              	.LBB23:
+ 249:Core/Src/freertos.c ****         {
+ 537              		.loc 1 249 18 view .LVU144
+ 538 01e4 0024     		movs	r4, #0
+ 539              	.LVL64:
+ 249:Core/Src/freertos.c ****         {
+ 540              		.loc 1 249 18 view .LVU145
+ 541 01e6 07E0     		b	.L38
+ 542              	.L65:
+ 249:Core/Src/freertos.c ****         {
+ 543              		.loc 1 249 18 view .LVU146
+ 544              	.LBE23:
+ 191:Core/Src/freertos.c ****       {
+ 545              		.loc 1 191 7 view .LVU147
+ 546 01e8 0024     		movs	r4, #0
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 18
+
+
+ 547 01ea F9E7     		b	.L15
+ 548              	.LVL65:
+ 549              	.L39:
+ 550              	.LBB24:
+ 251:Core/Src/freertos.c ****         }
+ 551              		.loc 1 251 11 is_stmt 1 discriminator 3 view .LVU148
+ 552 01ec FF22     		movs	r2, #255
+ 553 01ee 1146     		mov	r1, r2
+ 554 01f0 1046     		mov	r0, r2
+ 555 01f2 FFF7FEFF 		bl	sendPixel
+ 556              	.LVL66:
+ 249:Core/Src/freertos.c ****         {
+ 557              		.loc 1 249 34 discriminator 3 view .LVU149
+ 249:Core/Src/freertos.c ****         {
+ 558              		.loc 1 249 35 is_stmt 0 discriminator 3 view .LVU150
+ 559 01f6 0134     		adds	r4, r4, #1
+ 560              	.LVL67:
+ 561              	.L38:
+ 249:Core/Src/freertos.c ****         {
+ 562              		.loc 1 249 25 is_stmt 1 discriminator 1 view .LVU151
+ 249:Core/Src/freertos.c ****         {
+ 563              		.loc 1 249 9 is_stmt 0 discriminator 1 view .LVU152
+ 564 01f8 632C     		cmp	r4, #99
+ 565 01fa F7DD     		ble	.L39
+ 566              	.LBE24:
+ 253:Core/Src/freertos.c ****         break;
+ 567              		.loc 1 253 9 is_stmt 1 view .LVU153
+ 568 01fc FFF7FEFF 		bl	ws2812_reset
+ 569              	.LVL68:
+ 254:Core/Src/freertos.c ****       case 43:
+ 570              		.loc 1 254 9 view .LVU154
+ 571 0200 6BE0     		b	.L52
+ 572              	.LVL69:
+ 573              	.L40:
+ 574              	.LBB25:
+ 258:Core/Src/freertos.c ****         }
+ 575              		.loc 1 258 11 discriminator 3 view .LVU155
+ 576 0202 0022     		movs	r2, #0
+ 577 0204 1146     		mov	r1, r2
+ 578 0206 1046     		mov	r0, r2
+ 579 0208 FFF7FEFF 		bl	sendPixel
+ 580              	.LVL70:
+ 256:Core/Src/freertos.c ****         {
+ 581              		.loc 1 256 34 discriminator 3 view .LVU156
+ 256:Core/Src/freertos.c ****         {
+ 582              		.loc 1 256 35 is_stmt 0 discriminator 3 view .LVU157
+ 583 020c 0134     		adds	r4, r4, #1
+ 584              	.LVL71:
+ 585              	.L13:
+ 256:Core/Src/freertos.c ****         {
+ 586              		.loc 1 256 25 is_stmt 1 discriminator 1 view .LVU158
+ 256:Core/Src/freertos.c ****         {
+ 587              		.loc 1 256 9 is_stmt 0 discriminator 1 view .LVU159
+ 588 020e B4F58E7F 		cmp	r4, #284
+ 589 0212 F6DD     		ble	.L40
+ 590              	.LBE25:
+ 591              	.LBB26:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 19
+
+
+ 260:Core/Src/freertos.c ****         {
+ 592              		.loc 1 260 18 view .LVU160
+ 593 0214 0024     		movs	r4, #0
+ 594              	.LVL72:
+ 260:Core/Src/freertos.c ****         {
+ 595              		.loc 1 260 18 view .LVU161
+ 596 0216 07E0     		b	.L41
+ 597              	.L66:
+ 260:Core/Src/freertos.c ****         {
+ 598              		.loc 1 260 18 view .LVU162
+ 599              	.LBE26:
+ 191:Core/Src/freertos.c ****       {
+ 600              		.loc 1 191 7 view .LVU163
+ 601 0218 0024     		movs	r4, #0
+ 602 021a F8E7     		b	.L13
+ 603              	.LVL73:
+ 604              	.L42:
+ 605              	.LBB27:
+ 262:Core/Src/freertos.c ****         }
+ 606              		.loc 1 262 11 is_stmt 1 discriminator 3 view .LVU164
+ 607 021c FF22     		movs	r2, #255
+ 608 021e 1146     		mov	r1, r2
+ 609 0220 1046     		mov	r0, r2
+ 610 0222 FFF7FEFF 		bl	sendPixel
+ 611              	.LVL74:
+ 260:Core/Src/freertos.c ****         {
+ 612              		.loc 1 260 34 discriminator 3 view .LVU165
+ 260:Core/Src/freertos.c ****         {
+ 613              		.loc 1 260 35 is_stmt 0 discriminator 3 view .LVU166
+ 614 0226 0134     		adds	r4, r4, #1
+ 615              	.LVL75:
+ 616              	.L41:
+ 260:Core/Src/freertos.c ****         {
+ 617              		.loc 1 260 25 is_stmt 1 discriminator 1 view .LVU167
+ 260:Core/Src/freertos.c ****         {
+ 618              		.loc 1 260 9 is_stmt 0 discriminator 1 view .LVU168
+ 619 0228 632C     		cmp	r4, #99
+ 620 022a F7DD     		ble	.L42
+ 621              	.LBE27:
+ 264:Core/Src/freertos.c ****         break;
+ 622              		.loc 1 264 9 is_stmt 1 view .LVU169
+ 623 022c FFF7FEFF 		bl	ws2812_reset
+ 624              	.LVL76:
+ 265:Core/Src/freertos.c ****       case 10:
+ 625              		.loc 1 265 9 view .LVU170
+ 626 0230 53E0     		b	.L52
+ 627              	.LVL77:
+ 628              	.L43:
+ 629              	.LBB28:
+ 269:Core/Src/freertos.c ****         }
+ 630              		.loc 1 269 11 discriminator 3 view .LVU171
+ 631 0232 0022     		movs	r2, #0
+ 632 0234 1146     		mov	r1, r2
+ 633 0236 1046     		mov	r0, r2
+ 634 0238 FFF7FEFF 		bl	sendPixel
+ 635              	.LVL78:
+ 267:Core/Src/freertos.c ****         {
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 20
+
+
+ 636              		.loc 1 267 34 discriminator 3 view .LVU172
+ 267:Core/Src/freertos.c ****         {
+ 637              		.loc 1 267 35 is_stmt 0 discriminator 3 view .LVU173
+ 638 023c 0134     		adds	r4, r4, #1
+ 639              	.LVL79:
+ 640              	.L23:
+ 267:Core/Src/freertos.c ****         {
+ 641              		.loc 1 267 25 is_stmt 1 discriminator 1 view .LVU174
+ 267:Core/Src/freertos.c ****         {
+ 642              		.loc 1 267 9 is_stmt 0 discriminator 1 view .LVU175
+ 643 023e B4F5A27F 		cmp	r4, #324
+ 644 0242 F6DD     		ble	.L43
+ 645              	.LBE28:
+ 646              	.LBB29:
+ 271:Core/Src/freertos.c ****         {
+ 647              		.loc 1 271 18 view .LVU176
+ 648 0244 0024     		movs	r4, #0
+ 649              	.LVL80:
+ 271:Core/Src/freertos.c ****         {
+ 650              		.loc 1 271 18 view .LVU177
+ 651 0246 07E0     		b	.L44
+ 652              	.L57:
+ 271:Core/Src/freertos.c ****         {
+ 653              		.loc 1 271 18 view .LVU178
+ 654              	.LBE29:
+ 191:Core/Src/freertos.c ****       {
+ 655              		.loc 1 191 7 view .LVU179
+ 656 0248 0024     		movs	r4, #0
+ 657 024a F8E7     		b	.L23
+ 658              	.LVL81:
+ 659              	.L45:
+ 660              	.LBB30:
+ 273:Core/Src/freertos.c ****         }
+ 661              		.loc 1 273 11 is_stmt 1 discriminator 3 view .LVU180
+ 662 024c FF22     		movs	r2, #255
+ 663 024e 1146     		mov	r1, r2
+ 664 0250 1046     		mov	r0, r2
+ 665 0252 FFF7FEFF 		bl	sendPixel
+ 666              	.LVL82:
+ 271:Core/Src/freertos.c ****         {
+ 667              		.loc 1 271 34 discriminator 3 view .LVU181
+ 271:Core/Src/freertos.c ****         {
+ 668              		.loc 1 271 35 is_stmt 0 discriminator 3 view .LVU182
+ 669 0256 0134     		adds	r4, r4, #1
+ 670              	.LVL83:
+ 671              	.L44:
+ 271:Core/Src/freertos.c ****         {
+ 672              		.loc 1 271 25 is_stmt 1 discriminator 1 view .LVU183
+ 271:Core/Src/freertos.c ****         {
+ 673              		.loc 1 271 9 is_stmt 0 discriminator 1 view .LVU184
+ 674 0258 722C     		cmp	r4, #114
+ 675 025a F7DD     		ble	.L45
+ 676              	.LBE30:
+ 275:Core/Src/freertos.c ****         break;
+ 677              		.loc 1 275 9 is_stmt 1 view .LVU185
+ 678 025c FFF7FEFF 		bl	ws2812_reset
+ 679              	.LVL84:
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 21
+
+
+ 276:Core/Src/freertos.c ****       case 11:
+ 680              		.loc 1 276 9 view .LVU186
+ 681 0260 3BE0     		b	.L52
+ 682              	.LVL85:
+ 683              	.L46:
+ 684              	.LBB31:
+ 280:Core/Src/freertos.c ****         }
+ 685              		.loc 1 280 11 discriminator 3 view .LVU187
+ 686 0262 0022     		movs	r2, #0
+ 687 0264 1146     		mov	r1, r2
+ 688 0266 1046     		mov	r0, r2
+ 689 0268 FFF7FEFF 		bl	sendPixel
+ 690              	.LVL86:
+ 278:Core/Src/freertos.c ****         {
+ 691              		.loc 1 278 34 discriminator 3 view .LVU188
+ 278:Core/Src/freertos.c ****         {
+ 692              		.loc 1 278 35 is_stmt 0 discriminator 3 view .LVU189
+ 693 026c 0134     		adds	r4, r4, #1
+ 694              	.LVL87:
+ 695              	.L22:
+ 278:Core/Src/freertos.c ****         {
+ 696              		.loc 1 278 25 is_stmt 1 discriminator 1 view .LVU190
+ 278:Core/Src/freertos.c ****         {
+ 697              		.loc 1 278 9 is_stmt 0 discriminator 1 view .LVU191
+ 698 026e B4F5BB7F 		cmp	r4, #374
+ 699 0272 F6DD     		ble	.L46
+ 700              	.LBE31:
+ 701              	.LBB32:
+ 282:Core/Src/freertos.c ****         {
+ 702              		.loc 1 282 18 view .LVU192
+ 703 0274 0024     		movs	r4, #0
+ 704              	.LVL88:
+ 282:Core/Src/freertos.c ****         {
+ 705              		.loc 1 282 18 view .LVU193
+ 706 0276 07E0     		b	.L47
+ 707              	.L58:
+ 282:Core/Src/freertos.c ****         {
+ 708              		.loc 1 282 18 view .LVU194
+ 709              	.LBE32:
+ 191:Core/Src/freertos.c ****       {
+ 710              		.loc 1 191 7 view .LVU195
+ 711 0278 0024     		movs	r4, #0
+ 712 027a F8E7     		b	.L22
+ 713              	.LVL89:
+ 714              	.L48:
+ 715              	.LBB33:
+ 284:Core/Src/freertos.c ****         }
+ 716              		.loc 1 284 11 is_stmt 1 discriminator 3 view .LVU196
+ 717 027c FF22     		movs	r2, #255
+ 718 027e 1146     		mov	r1, r2
+ 719 0280 1046     		mov	r0, r2
+ 720 0282 FFF7FEFF 		bl	sendPixel
+ 721              	.LVL90:
+ 282:Core/Src/freertos.c ****         {
+ 722              		.loc 1 282 34 discriminator 3 view .LVU197
+ 282:Core/Src/freertos.c ****         {
+ 723              		.loc 1 282 35 is_stmt 0 discriminator 3 view .LVU198
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 22
+
+
+ 724 0286 0134     		adds	r4, r4, #1
+ 725              	.LVL91:
+ 726              	.L47:
+ 282:Core/Src/freertos.c ****         {
+ 727              		.loc 1 282 25 is_stmt 1 discriminator 1 view .LVU199
+ 282:Core/Src/freertos.c ****         {
+ 728              		.loc 1 282 9 is_stmt 0 discriminator 1 view .LVU200
+ 729 0288 682C     		cmp	r4, #104
+ 730 028a F7DD     		ble	.L48
+ 731              	.LBE33:
+ 286:Core/Src/freertos.c ****         break;
+ 732              		.loc 1 286 9 is_stmt 1 view .LVU201
+ 733 028c FFF7FEFF 		bl	ws2812_reset
+ 734              	.LVL92:
+ 287:Core/Src/freertos.c ****       case 12:
+ 735              		.loc 1 287 9 view .LVU202
+ 736 0290 23E0     		b	.L52
+ 737              	.LVL93:
+ 738              	.L49:
+ 739              	.LBB34:
+ 291:Core/Src/freertos.c ****         }
+ 740              		.loc 1 291 11 discriminator 3 view .LVU203
+ 741 0292 0022     		movs	r2, #0
+ 742 0294 1146     		mov	r1, r2
+ 743 0296 1046     		mov	r0, r2
+ 744 0298 FFF7FEFF 		bl	sendPixel
+ 745              	.LVL94:
+ 289:Core/Src/freertos.c ****         {
+ 746              		.loc 1 289 34 discriminator 3 view .LVU204
+ 289:Core/Src/freertos.c ****         {
+ 747              		.loc 1 289 35 is_stmt 0 discriminator 3 view .LVU205
+ 748 029c 0134     		adds	r4, r4, #1
+ 749              	.LVL95:
+ 750              	.L21:
+ 289:Core/Src/freertos.c ****         {
+ 751              		.loc 1 289 25 is_stmt 1 discriminator 1 view .LVU206
+ 289:Core/Src/freertos.c ****         {
+ 752              		.loc 1 289 9 is_stmt 0 discriminator 1 view .LVU207
+ 753 029e B4F5CF7F 		cmp	r4, #414
+ 754 02a2 F6DD     		ble	.L49
+ 755              	.LBE34:
+ 756              	.LBB35:
+ 293:Core/Src/freertos.c ****         {
+ 757              		.loc 1 293 18 view .LVU208
+ 758 02a4 0024     		movs	r4, #0
+ 759              	.LVL96:
+ 293:Core/Src/freertos.c ****         {
+ 760              		.loc 1 293 18 view .LVU209
+ 761 02a6 07E0     		b	.L50
+ 762              	.L59:
+ 293:Core/Src/freertos.c ****         {
+ 763              		.loc 1 293 18 view .LVU210
+ 764              	.LBE35:
+ 191:Core/Src/freertos.c ****       {
+ 765              		.loc 1 191 7 view .LVU211
+ 766 02a8 0024     		movs	r4, #0
+ 767 02aa F8E7     		b	.L21
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 23
+
+
+ 768              	.LVL97:
+ 769              	.L51:
+ 770              	.LBB36:
+ 295:Core/Src/freertos.c ****         }
+ 771              		.loc 1 295 11 is_stmt 1 discriminator 3 view .LVU212
+ 772 02ac FF22     		movs	r2, #255
+ 773 02ae 1146     		mov	r1, r2
+ 774 02b0 1046     		mov	r0, r2
+ 775 02b2 FFF7FEFF 		bl	sendPixel
+ 776              	.LVL98:
+ 293:Core/Src/freertos.c ****         {
+ 777              		.loc 1 293 34 discriminator 3 view .LVU213
+ 293:Core/Src/freertos.c ****         {
+ 778              		.loc 1 293 35 is_stmt 0 discriminator 3 view .LVU214
+ 779 02b6 0134     		adds	r4, r4, #1
+ 780              	.LVL99:
+ 781              	.L50:
+ 293:Core/Src/freertos.c ****         {
+ 782              		.loc 1 293 25 is_stmt 1 discriminator 1 view .LVU215
+ 293:Core/Src/freertos.c ****         {
+ 783              		.loc 1 293 9 is_stmt 0 discriminator 1 view .LVU216
+ 784 02b8 952C     		cmp	r4, #149
+ 785 02ba F7DD     		ble	.L51
+ 786              	.LBE36:
+ 297:Core/Src/freertos.c ****         break;
+ 787              		.loc 1 297 9 is_stmt 1 view .LVU217
+ 788 02bc FFF7FEFF 		bl	ws2812_reset
+ 789              	.LVL100:
+ 298:Core/Src/freertos.c ****       }
+ 790              		.loc 1 298 9 view .LVU218
+ 791 02c0 0BE0     		b	.L52
+ 792              	.L72:
+ 793 02c2 00BF     		.align	2
+ 794              	.L71:
+ 795 02c4 00000000 		.word	hcan
+ 796 02c8 00000000 		.word	MX_CAN_Init
+ 797 02cc 00000000 		.word	htim17
+ 798 02d0 00000000 		.word	OD_PERSIST_COMM
+ 799              	.LVL101:
+ 800              	.L70:
+ 308:Core/Src/freertos.c ****       }
+ 801              		.loc 1 308 9 view .LVU219
+ 802 02d4 3220     		movs	r0, #50
+ 803 02d6 FFF7FEFF 		bl	osDelay
+ 804              	.LVL102:
+ 301:Core/Src/freertos.c ****       {
+ 805              		.loc 1 301 13 view .LVU220
+ 806              	.L52:
+ 301:Core/Src/freertos.c ****       {
+ 807              		.loc 1 301 7 view .LVU221
+ 303:Core/Src/freertos.c ****         if (OD_PERSIST_COMM.x6001_light_control_data == 0)
+ 808              		.loc 1 303 9 view .LVU222
+ 809 02da FFF7FEFF 		bl	canopen_app_process
+ 810              	.LVL103:
+ 304:Core/Src/freertos.c ****         {
+ 811              		.loc 1 304 9 view .LVU223
+ 304:Core/Src/freertos.c ****         {
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 24
+
+
+ 812              		.loc 1 304 28 is_stmt 0 view .LVU224
+ 813 02de 034B     		ldr	r3, .L73
+ 814 02e0 B3F89A30 		ldrh	r3, [r3, #154]
+ 304:Core/Src/freertos.c ****         {
+ 815              		.loc 1 304 12 view .LVU225
+ 816 02e4 002B     		cmp	r3, #0
+ 817 02e6 F5D1     		bne	.L70
+ 818 02e8 CEE6     		b	.L7
+ 819              	.L74:
+ 820 02ea 00BF     		.align	2
+ 821              	.L73:
+ 822 02ec 00000000 		.word	OD_PERSIST_COMM
+ 823              		.cfi_endproc
+ 824              	.LFE169:
+ 826              		.section	.text.MX_FREERTOS_Init,"ax",%progbits
+ 827              		.align	1
+ 828              		.global	MX_FREERTOS_Init
+ 829              		.syntax unified
+ 830              		.thumb
+ 831              		.thumb_func
+ 833              	MX_FREERTOS_Init:
+ 834              	.LFB168:
+  84:Core/Src/freertos.c ****   /* USER CODE BEGIN Init */
+ 835              		.loc 1 84 1 is_stmt 1 view -0
+ 836              		.cfi_startproc
+ 837              		@ args = 0, pretend = 0, frame = 0
+ 838              		@ frame_needed = 0, uses_anonymous_args = 0
+ 839 0000 08B5     		push	{r3, lr}
+ 840              	.LCFI2:
+ 841              		.cfi_def_cfa_offset 8
+ 842              		.cfi_offset 3, -8
+ 843              		.cfi_offset 14, -4
+ 111:Core/Src/freertos.c **** 
+ 844              		.loc 1 111 3 view .LVU227
+ 111:Core/Src/freertos.c **** 
+ 845              		.loc 1 111 23 is_stmt 0 view .LVU228
+ 846 0002 044A     		ldr	r2, .L77
+ 847 0004 0021     		movs	r1, #0
+ 848 0006 0448     		ldr	r0, .L77+4
+ 849 0008 FFF7FEFF 		bl	osThreadNew
+ 850              	.LVL104:
+ 111:Core/Src/freertos.c **** 
+ 851              		.loc 1 111 21 view .LVU229
+ 852 000c 034B     		ldr	r3, .L77+8
+ 853 000e 1860     		str	r0, [r3]
+ 120:Core/Src/freertos.c **** 
+ 854              		.loc 1 120 1 view .LVU230
+ 855 0010 08BD     		pop	{r3, pc}
+ 856              	.L78:
+ 857 0012 00BF     		.align	2
+ 858              	.L77:
+ 859 0014 00000000 		.word	.LANCHOR0
+ 860 0018 00000000 		.word	canopen_task
+ 861 001c 00000000 		.word	.LANCHOR1
+ 862              		.cfi_endproc
+ 863              	.LFE168:
+ 865              		.global	canopenTask_attributes
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 25
+
+
+ 866              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 867              		.align	2
+ 868              	.LC0:
+ 869 0000 63616E6F 		.ascii	"canopenTask\000"
+ 869      70656E54 
+ 869      61736B00 
+ 870              		.global	canopenTaskHandle
+ 871              		.section	.bss.canopenTaskHandle,"aw",%nobits
+ 872              		.align	2
+ 873              		.set	.LANCHOR1,. + 0
+ 876              	canopenTaskHandle:
+ 877 0000 00000000 		.space	4
+ 878              		.section	.rodata.canopenTask_attributes,"a"
+ 879              		.align	2
+ 880              		.set	.LANCHOR0,. + 0
+ 883              	canopenTask_attributes:
+ 884 0000 00000000 		.word	.LC0
+ 885 0004 00000000 		.space	16
+ 885      00000000 
+ 885      00000000 
+ 885      00000000 
+ 886 0014 00020000 		.word	512
+ 887 0018 30000000 		.word	48
+ 888 001c 00000000 		.space	8
+ 888      00000000 
+ 889              		.text
+ 890              	.Letext0:
+ 891              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 892              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 893              		.file 4 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 894              		.file 5 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h"
+ 895              		.file 6 "Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f303x8.h"
+ 896              		.file 7 "Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f3xx.h"
+ 897              		.file 8 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_def.h"
+ 898              		.file 9 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_dma.h"
+ 899              		.file 10 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_can.h"
+ 900              		.file 11 "Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h"
+ 901              		.file 12 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h"
+ 902              		.file 13 "Core/Inc/tim.h"
+ 903              		.file 14 "Core/Inc/can.h"
+ 904              		.file 15 "Middlewares/Third_Party/CANopenNode_STM32/CO_driver_target.h"
+ 905              		.file 16 "Middlewares/Third_Party/CANopenNode/301/CO_ODinterface.h"
+ 906              		.file 17 "Middlewares/Third_Party/CANopenNode/301/CO_Emergency.h"
+ 907              		.file 18 "Middlewares/Third_Party/CANopenNode/301/CO_NMT_Heartbeat.h"
+ 908              		.file 19 "Middlewares/Third_Party/CANopenNode/301/CO_HBconsumer.h"
+ 909              		.file 20 "Middlewares/Third_Party/CANopenNode/301/CO_SDOserver.h"
+ 910              		.file 21 "Middlewares/Third_Party/CANopenNode/301/CO_SYNC.h"
+ 911              		.file 22 "Middlewares/Third_Party/CANopenNode/301/CO_PDO.h"
+ 912              		.file 23 "Middlewares/Third_Party/CANopenNode/301/CO_TIME.h"
+ 913              		.file 24 "Middlewares/Third_Party/CANopenNode/303/CO_LEDs.h"
+ 914              		.file 25 "Middlewares/Third_Party/CANopenNode/305/CO_LSS.h"
+ 915              		.file 26 "Middlewares/Third_Party/CANopenNode/305/CO_LSSslave.h"
+ 916              		.file 27 "Middlewares/Third_Party/CANopenNode/CANopen.h"
+ 917              		.file 28 "Middlewares/Third_Party/CANopenNode_STM32/CO_app_STM32.h"
+ 918              		.file 29 "Middlewares/Third_Party/CANopenNode_STM32/OD.h"
+ 919              		.file 30 "Core/Inc/ws2812.h"
+ 920              		.file 31 "Core/Inc/main.h"
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 26
+
+
+ 921              		.file 32 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ARM GAS  C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s 			page 27
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 freertos.c
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:20     .text.canopen_task:00000000 $t
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:26     .text.canopen_task:00000000 canopen_task
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:233    .text.canopen_task:000000be $d
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:268    .text.canopen_task:00000102 $t
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:795    .text.canopen_task:000002c4 $d
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:802    .text.canopen_task:000002d4 $t
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:822    .text.canopen_task:000002ec $d
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:827    .text.MX_FREERTOS_Init:00000000 $t
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:833    .text.MX_FREERTOS_Init:00000000 MX_FREERTOS_Init
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:859    .text.MX_FREERTOS_Init:00000014 $d
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:883    .rodata.canopenTask_attributes:00000000 canopenTask_attributes
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:867    .rodata.str1.4:00000000 $d
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:876    .bss.canopenTaskHandle:00000000 canopenTaskHandle
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:872    .bss.canopenTaskHandle:00000000 $d
+C:\Users\walker\AppData\Local\Temp\cc5HeS9v.s:879    .rodata.canopenTask_attributes:00000000 $d
+
+UNDEFINED SYMBOLS
+get_NodeID
+canopen_app_init
+sendPixel
+ws2812_reset
+osDelay
+canopen_app_process
+clear
+vTaskDelay
+hcan
+MX_CAN_Init
+htim17
+OD_PERSIST_COMM
+osThreadNew
